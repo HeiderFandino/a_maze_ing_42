@@ -1,5 +1,6 @@
 NAME     = a_maze_ing.py
 PYTHON   = python3
+CONFIG   = config.txt
 
 
 all: run
@@ -8,10 +9,10 @@ install:
 	$(PYTHON) -m pip install --user flake8 mypy
 
 run:
-	$(PYTHON) $(NAME)
+	$(PYTHON) $(NAME) $(CONFIG)
 
 debug:
-	$(PYTHON) -m pdb $(NAME)
+	$(PYTHON) -m pdb $(NAME) $(CONFIG)
 
 lint:
 	$(PYTHON) -m flake8 .
