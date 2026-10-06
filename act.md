@@ -25,3 +25,37 @@
 - Independencia de las celdas.
 - Coherencia de las paredes compartidas.
 - Rechazo de dimensiones no positivas y pasos inválidos.
+
+## 06/10/2026 — 18:37
+
+### Validaciones básicas — H02
+
+- Se añadió `_validate_endpoints(entry_pos, exit_pos)` para comprobar que entrada y salida estén dentro de la cuadrícula y sean diferentes.
+- Las coordenadas inválidas producen `ValueError` con un mensaje descriptivo.
+
+### Avances en la generación perfecta — H03
+
+- `_get_neighbors(x, y)` obtiene los vecinos dentro de los límites, en orden norte, este, sur y oeste.
+- `_get_available_neighbors(...)` excluye las celdas visitadas y bloqueadas.
+- `_generate_dfs(...)` construye el laberinto mediante DFS, utilizando una pila y un conjunto de celdas visitadas.
+- La generación comienza con todas las paredes cerradas y utiliza una semilla para controlar las decisiones aleatorias.
+- Cada apertura modifica las dos paredes compartidas.
+- Al terminar, se comprueba que todas las celdas transitables hayan sido visitadas.
+- Se preparó el soporte para excluir las celdas reservadas del patrón «42».
+
+### Información para Michele
+
+- Importación actual: `from mazegen.maze import MazeGenerator`.
+- Coordenadas: `(x, y)`. Acceso a las celdas: `maze.grid[y][x]`.
+- Paredes: `True` significa cerrada y `False` significa abierta.
+- Los métodos que empiezan por `_` son internos del motor.
+- `_generate_dfs` entrega pasos mediante un iterador. El recorrido avanza cuando se consumen esos pasos.
+- Cada paso contiene `((x_origen, y_origen), (x_destino, y_destino))` y se entrega después de abrir el paso.
+- La interfaz puede consultar `maze.grid` en ese momento para representar el estado actualizado.
+
+### Organización y comprobaciones
+
+- Se añadió `mazegen/__init__.py` para identificar el paquete.
+- El motor permanece en `mazegen/maze.py`:
+- Se comprobaron posiciones de entrada y salida válidas, fuera de los límites e iguales.
+- La prueba de 3 × 2 conectó las seis celdas mediante cinco aperturas, sin ciclos.

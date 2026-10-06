@@ -1,3 +1,6 @@
+import random
+from collections.abc import Iterator
+
 def create_cell() -> dict[str, bool]:
     """Create a new cell with all four walls closed."""
     return {
@@ -66,3 +69,94 @@ class MazeGenerator:
         elif y2 < y1:
             self.grid[y1][x1]["north"] = False
             self.grid[y2][x2]["south"] = False
+
+    def _validate_endpoints(self, entry_pos: tuple[int, int], exit_pos: tuple[int, int]) -> None:
+        """Validate that entry and exit are distinct cells inside the grid."""
+        if not self.is_in_bounds(entry_pos[0], entry_pos[1]):
+            raise ValueError("Entry must be inside the grid")
+
+        if not self.is_in_bounds(exit_pos[0], exit_pos[1]):
+            raise ValueError("Exit must be inside the grid")
+
+        if entry_pos == exit_pos:
+            raise ValueError("Entry and exit must be different")
+
+    def _get_neighbors(self, x: int, y: int) -> list[tuple[int, int]]:
+        """Return in-bounds neighbors in north, east, south, west order."""
+        candidates: list[tuple[int, int]] = [
+            (x, y - 1),
+            (x + 1, y),
+            (x, y + 1),
+            (x - 1, y),
+        ]
+
+        neighbors: list[tuple[int, int]] = []
+
+        for position in candidates:
+            if self.is_in_bounds(position[0], position[1]):
+                neighbors.append(position)
+
+        return neighbors
+
+    def _get_available_neighbors(
+        self,
+        x: int,
+        y: int,
+        visited: set[tuple[int, int]],
+        blocked: set[tuple[int, int]],
+    ) -> list[tuple[int, int]]:
+        """Return neighboring cells that are unvisited and unblocked."""
+        neighbors: list[tuple[int, int]] = []
+
+        for position in self._get_neighbors(x, y):
+            if position not in visited and position not in blocked:
+                neighbors.append(position)
+
+        return neighbors
+
+    def _generate_dfs(
+        self,
+        entry_pos: tuple[int, int],
+        blocked: set[tuple[int, int]],
+        seed: int | None = None,
+    ) -> Iterator[tuple[tuple[int, int], tuple[int, int]]]:
+        """Carve a perfect maze from entry_pos, skipping blocked cells.
+
+        Use seed for reproducible choices. Yield each opened passage as
+        a pair of coordinates. Raise ValueError for invalid positions
+        or disconnected traversable cells.
+        """
+        if not self.is_in_bounds(entry_pos[0], entry_pos[1]):
+            raise ValueError("Entry must be inside the grid")
+
+        for position in blocked:
+            if not self.is_in_bounds(position[0], position[1]):
+                raise ValueError("Blocked cells must be inside the grid")
+
+        if entry_pos in blocked:
+            raise ValueError("Entry must not be a blocked cell")
+
+        self.grid = self._create_grid()
+        rng = random.Random(seed)
+        visited: set[tuple[int, int]] = {entry_pos}
+        stack: list[tuple[int, int]] = [entry_pos]
+
+        while stack:
+            current = stack[-1]
+            neighbors = self._get_available_neighbors(
+                current[0], current[1], visited, blocked,
+            )
+
+            if not neighbors:
+                stack.pop()
+            else:
+                next_pos = rng.choice(neighbors)
+                self.open_passage(
+                    current[0], current[1], next_pos[0], next_pos[1],
+                )
+                visited.add(next_pos)
+                stack.append(next_pos)
+                yield (current, next_pos)
+
+        if len(visited) != self.width * self.height - len(blocked):
+            raise ValueError("Traversable cells must form one connected area")
