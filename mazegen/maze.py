@@ -165,14 +165,30 @@ class MazeGenerator:
             raise ValueError("Traversable cells must form one connected area")
 
     def draw_solid(self, maze_color: str = "\033[37m",
-                   blocked: set[tuple[int, int]] = None) -> None:
+                   blocked: set[tuple[int, int]] = None,
+                   start_pos: tuple[int, int] = (0, 0)) -> None:
         """Dibuja el laberinto usando bloques
         sólidos
         maze_color: Código ANSI para el color (por defecto blanco).
         blocked: Conjunto de celdas que actúan como obstáculos sólidos.
         """
+        if not hasattr(self, 'grid') or not self.grid or len(self.grid) == 0:
+            raise RuntimeError("No se puede dibujar: La"
+                               " cuadrícula del laberinto no está"
+                               " inicializada o está vacía.")
+
         if blocked is None:
             blocked = set()
+
+        if not self.is_in_bounds(start_pos[0], start_pos[1]):
+            raise ValueError(f"La coordenada de inicio 'start_pos'"
+                             f" {start_pos} está fuera de los "
+                             f"límites del laberinto.")
+
+        for pos in blocked:
+            if not self.is_in_bounds(pos[0], pos[1]):
+                raise ValueError(f"La celda bloqueada {pos} "
+                                 f"está fuera de los límites del laberinto.")
 
         w = "█"  # Carácter de pared sólida
 
@@ -202,8 +218,14 @@ class MazeGenerator:
                 left = f"{w}" if cell["west"] else " "
                 right = f"{w}" if cell["east"] else " "
 
-                # Representación del centro de la celda (vacío)
-                cell_representation = "   "
+                # COMPROBACIÓN DE LA ENTRADA
+                if (x, y) == start_pos:
+                    # Colocamos la 'S' y
+                    # volvemos a aplicar el color del laberinto
+                    cell_representation = " S "
+                else:
+                    # Representación del centro de la celda ordinaria (vacío)
+                    cell_representation = "   "
 
                 line2 += f"{left}{cell_representation}{right}"
 
@@ -217,8 +239,8 @@ class MazeGenerator:
 
 if __name__ == "__main__":
     # Configuración del tamaño del laberinto
-    ANCHO = 20
-    ALTO = 20
+    ANCHO = 10
+    ALTO = 10
 
     # Creamos la instancia del generador
     generador = MazeGenerator(width=ANCHO, height=ALTO)
@@ -227,7 +249,7 @@ if __name__ == "__main__":
     obstaculos = {(1, 1)}
 
     # Coordenada de inicio para empezar a generar
-    punto_inicio = (0, 0)
+    punto_inicio = (6, 7)
 
     # Códigos ANSI de color
     COLOR_CYAN = "\033[96m"
@@ -242,6 +264,6 @@ if __name__ == "__main__":
         pass  # No hacemos nada en cada paso, solo dejamos que termine
 
     # ¡Un único dibujo al final del proceso!
-    generador.draw_solid(maze_color=COLOR_CYAN, blocked=obstaculos)
+    generador.draw_solid(maze_color=COLOR_CYAN, blocked=obstaculos, start_pos=punto_inicio)
 
     print(f"\n{COLOR_RESET}[+] ¡Laberinto generado y dibujado con éxito!")
