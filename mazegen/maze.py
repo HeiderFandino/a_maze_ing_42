@@ -167,7 +167,7 @@ class MazeGenerator:
     def draw_solid(self, maze_color: str = "\033[37m",
                    blocked: set[tuple[int, int]] = None) -> None:
         """Dibuja el laberinto usando bloques
-        sólidos (estilo del segundo código).
+        sólidos
         maze_color: Código ANSI para el color (por defecto blanco).
         blocked: Conjunto de celdas que actúan como obstáculos sólidos.
         """
