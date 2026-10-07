@@ -1,5 +1,7 @@
 import random
+import os
 from collections.abc import Iterator
+
 
 def create_cell() -> dict[str, bool]:
     """Create a new cell with all four walls closed."""
@@ -156,7 +158,90 @@ class MazeGenerator:
                 )
                 visited.add(next_pos)
                 stack.append(next_pos)
+                os.system('clear' if os.name == 'posix' else 'cls')
                 yield (current, next_pos)
 
         if len(visited) != self.width * self.height - len(blocked):
             raise ValueError("Traversable cells must form one connected area")
+
+    def draw_solid(self, maze_color: str = "\033[37m",
+                   blocked: set[tuple[int, int]] = None) -> None:
+        """Dibuja el laberinto usando bloques
+        sólidos (estilo del segundo código).
+        maze_color: Código ANSI para el color (por defecto blanco).
+        blocked: Conjunto de celdas que actúan como obstáculos sólidos.
+        """
+        if blocked is None:
+            blocked = set()
+
+        w = "█"  # Carácter de pared sólida
+
+        # Iteramos por cada fila de celdas
+        for y in range(self.height):
+            line1 = ""
+            line2 = ""
+
+            for x in range(self.width):
+                # Si la celda actual o sus vecinas son bloques, pintamos todo
+                if (x, y) in blocked:
+                    line1 += f"{w}{w}{w}{w}{w}"
+                    line2 += f"{w}{w}{w}{w}{w}"
+                    continue
+
+                cell = self.grid[y][x]
+
+                # --- LÍNEA 1: Pared Norte ---
+                if cell["north"]:
+                    line1 += f"{w}{w}{w}{w}{w}"
+                else:
+                    # Si no hay pared norte, dejamos el pasillo abierto,
+                    # pero mantenemos las esquinas sólidas
+                    line1 += f"{w}   {w}"
+
+                # --- LÍNEA 2: Paredes Oeste, Centro y Este ---
+                left = f"{w}" if cell["west"] else " "
+                right = f"{w}" if cell["east"] else " "
+
+                # Representación del centro de la celda (vacío)
+                cell_representation = "   "
+
+                line2 += f"{left}{cell_representation}{right}"
+
+            # Imprimimos las dos líneas procesadas para esta fila
+            print(f"{maze_color}{line1}")
+            print(f"{maze_color}{line2}")
+
+        # Al igual que el segundo código, añadimos la línea de cierre inferior
+        print(f"{maze_color}{w}{w}{w}{w}{w}" * self.width)
+
+
+if __name__ == "__main__":
+    # Configuración del tamaño del laberinto
+    ANCHO = 20
+    ALTO = 20
+
+    # Creamos la instancia del generador
+    generador = MazeGenerator(width=ANCHO, height=ALTO)
+
+    # Definimos celdas bloqueadas (obstáculos)
+    obstaculos = {(1, 1)}
+
+    # Coordenada de inicio para empezar a generar
+    punto_inicio = (0, 0)
+
+    # Códigos ANSI de color
+    COLOR_CYAN = "\033[96m"
+    COLOR_RESET = "\033[0m"
+
+    print("Generando el laberinto en segundo plano...")
+
+    # Consumimos todo el generador por completo para que calcule el laberinto
+    # sin imprimir nada en pantalla todavía.
+    for _ in generador._generate_dfs(entry_pos=punto_inicio,
+                                     blocked=obstaculos, seed=None):
+        pass  # No hacemos nada en cada paso, solo dejamos que termine
+
+    # ¡Un único dibujo al final del proceso!
+    generador.draw_solid(maze_color=COLOR_CYAN, blocked=obstaculos)
+
+    print(f"\n{COLOR_RESET}[+] ¡Laberinto generado y dibujado con éxito!")
