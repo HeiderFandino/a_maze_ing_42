@@ -19,14 +19,18 @@ class MazeGenerator:
     Cells are stored as grid[y][x].
     Wall values are True for closed and False for open.
     """
-    def __init__(self, width: int, height: int) -> None:
+    def __init__(self, width: int, height: int, entry_pos: tuple[int, int], exit_pos: tuple[int, int]) -> None:
         """Initialize the generator with positive grid dimensions."""
         if width <= 0 or height <= 0:
             raise ValueError("width and height must be greater than 0")
 
         self.width: int = width
         self.height: int = height
+        self.entry_pos: tuple[int, int] = entry_pos
+        self.exit_pos: tuple[int, int] = exit_pos
+        self._validate_endpoints()
         self.grid: list[list[dict[str, bool]]] = self._create_grid()
+
 
     def _create_grid(self) -> list[list[dict[str, bool]]]:
         """Create a grid with all cell walls closed."""
@@ -71,15 +75,16 @@ class MazeGenerator:
             self.grid[y1][x1]["north"] = False
             self.grid[y2][x2]["south"] = False
 
-    def _validate_endpoints(self, entry_pos: tuple[int, int], exit_pos: tuple[int, int]) -> None:
+    
+    def _validate_endpoints(self) -> None:
         """Validate that entry and exit are distinct cells inside the grid."""
-        if not self.is_in_bounds(entry_pos[0], entry_pos[1]):
+        if not self.is_in_bounds(self.entry_pos[0], self.entry_pos[1]):
             raise ValueError("Entry must be inside the grid")
 
-        if not self.is_in_bounds(exit_pos[0], exit_pos[1]):
+        if not self.is_in_bounds(self.exit_pos[0], self.exit_pos[1]):
             raise ValueError("Exit must be inside the grid")
 
-        if entry_pos == exit_pos:
+        if self.entry_pos == self.exit_pos:
             raise ValueError("Entry and exit must be different")
 
     def _get_neighbors(self, x: int, y: int) -> list[tuple[int, int]]:
@@ -117,7 +122,6 @@ class MazeGenerator:
 
     def _generate_dfs(
         self,
-        entry_pos: tuple[int, int],
         blocked: set[tuple[int, int]],
         seed: int | None = None,
     ) -> Iterator[tuple[tuple[int, int], tuple[int, int]]]:
@@ -127,20 +131,20 @@ class MazeGenerator:
         a pair of coordinates. Raise ValueError for invalid positions
         or disconnected traversable cells.
         """
-        if not self.is_in_bounds(entry_pos[0], entry_pos[1]):
-            raise ValueError("Entry must be inside the grid")
-
+        if self.exit_pos in blocked:
+            raise ValueError("Exit must not be a blocked cell")
+        
         for position in blocked:
             if not self.is_in_bounds(position[0], position[1]):
                 raise ValueError("Blocked cells must be inside the grid")
 
-        if entry_pos in blocked:
+        if self.entry_pos in blocked:
             raise ValueError("Entry must not be a blocked cell")
 
         self.grid = self._create_grid()
         rng = random.Random(seed)
-        visited: set[tuple[int, int]] = {entry_pos}
-        stack: list[tuple[int, int]] = [entry_pos]
+        visited: set[tuple[int, int]] = {self.entry_pos}
+        stack: list[tuple[int, int]] = [self.entry_pos]
 
         while stack:
             current = stack[-1]

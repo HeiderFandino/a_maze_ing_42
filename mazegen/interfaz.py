@@ -2,8 +2,8 @@ from maze import MazeGenerator
 
 
 class interfaz(MazeGenerator):
-    def __init__(self, width: int, height: int) -> None:
-        super().__init__(width, height)
+    def __init__(self, width: int, height: int, entry_pos: tuple[int, int], exit_pos: tuple[int, int]) -> None:
+        super().__init__(width, height, entry_pos, exit_pos)
 
     def draw_solid(self, maze_color: str = "\033[37m",
                    blocked: set[tuple[int, int]] | None = None,
@@ -60,9 +60,12 @@ class interfaz(MazeGenerator):
                 right = f"{w}" if cell["east"] else " "
 
                 # COMPROBACION DE LA ENTRADA
-                if (x, y) == start_pos:
+                if (x, y) == self.entry_pos:
                     # Colocamos la 'S'
                     cell_representation = " S "
+                elif (x, y) == self.exit_pos:
+                    # Colocamos la 'E'
+                    cell_representation = " E "
                 else:
                     # Representacion del centro de la celda ordinaria (vacío)
                     cell_representation = "   "
@@ -123,35 +126,44 @@ class interfaz(MazeGenerator):
 
 
 if __name__ == "__main__":
-    # Configuracion del tamano del laberinto
     ANCHO = 10
     ALTO = 10
 
-    # Creamos la instancia del generador
-    generador = interfaz(width=ANCHO, height=ALTO)
+    entry_pos = (0, 0)
+    exit_pos = (9, 9)
+    obstaculos = set()
 
-    # Definimos celdas bloqueadas (obstáculos)
-    obstaculos = {(1, 1)}
-
-    # Coordenada de inicio para empezar a generar
-    punto_inicio = (3, 7)
-
-    # Codigos ANSI de color
     COLOR_CYAN = "\033[96m"
     COLOR_RESET = "\033[0m"
 
+    generador = interfaz(
+        width=ANCHO,
+        height=ALTO,
+        entry_pos=entry_pos,
+        exit_pos=exit_pos,
+    )
+
     print("Generando el laberinto en segundo plano...")
 
-    # Consumimos todo el generador por completo para que calcule el laberinto
-    # sin imprimir nada en pantalla todavia.
-    for _ in generador._generate_dfs(entry_pos=punto_inicio,
-                                     blocked=obstaculos, seed=None):
-        pass  # No hacemos nada en cada paso, solo dejamos que termine
+    for _ in generador._generate_dfs(
+        blocked=obstaculos,
+        seed=None,
+    ):
+        pass
 
-    # Un unico dibujo al final del proceso
-    generador.draw_solid(maze_color=COLOR_CYAN, blocked=obstaculos,
-                         start_pos=punto_inicio)
+    generador.draw_solid(
+        maze_color=COLOR_CYAN,
+        blocked=obstaculos,
+        start_pos=entry_pos,
+    )
 
-    print(f"\n{COLOR_RESET}[+] ¡Laberinto generado y dibujado con éxito!")
-    #SOLO SI QUIERES UN ARCHIVO HEXADECIMAL!!
-    #generador.save_maze("mi_laberinto.txt", start_pos=punto_inicio)
+    print(
+        f"\n{COLOR_RESET}"
+        "[+] ¡Laberinto generado y dibujado con éxito!"
+    )
+
+    # SOLO SI QUIERES GENERAR EL ARCHIVO HEXADECIMAL
+    # generador.save_maze(
+    #     "mi_laberinto.txt",
+    #     start_pos=entry_pos,
+    # )
