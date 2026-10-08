@@ -1,4 +1,6 @@
 import random
+import os
+import time
 from collections.abc import Iterator
 
 
@@ -30,6 +32,7 @@ class MazeGenerator:
         self.exit_pos: tuple[int, int] = exit_pos
         self._validate_endpoints()
         self.grid: list[list[dict[str, bool]]] = self._create_grid()
+        self.animation: bool = False
 
 
     def _create_grid(self) -> list[list[dict[str, bool]]]:
@@ -165,5 +168,8 @@ class MazeGenerator:
 
         if len(visited) != self.width * self.height - len(blocked):
             raise ValueError("Traversable cells must form one connected area")
+
+    def change_animation(self) -> None:
+        self.animation = not self.animation
 
     

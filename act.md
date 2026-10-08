@@ -1,5 +1,29 @@
 # Actualizaciones
 
+## 08/10/2026 - actualizacion M08 y M09
+
+### M08: anadido regeneracion y cambio de colores
+
+Al generar un laberinto ahora te pide un numero para elegir entre varias opciones.
+
+El programa comprueba que el usuario ponga un numero haciendo try / except y que no sea mas grande que las opciones disponibles.
+
+Las opciones estan en un bucle while que se detiene solo con la opcion 0)
+
+0) Detiene el codigo y te permite volver a utilizar la terminal haciendo un break
+1) Vuelve a hacer un bucle de generate-dfs para crear el nuevo laberinto y despues draw-solid para imprimirlo
+2) Cambia el color al siguiente de la lista y vuelve a imprimir el laberinto con draw-solid
+3) Crea un archivo y escribe el laberinto en hexadecimal junto a entry-pos y exit-pos
+
+Los colores estan en un archivo a parte llamado colors.py e importados a interfaz.py
+
+### M09: anadido animacion al laberinto
+
+Hay una cuarta opcion que permite activar y desactivar la animacion.
+
+Cuando esta opcion se activa, se activa un bool que permite imprimir cada paso del algoritmo dfs cada un 0.04s.
+
+Cada paso tiene que limpiar la terminal para que pueda ser una animacion.
 
 ## 07/10/2026 — actualización H02 y cierre de H03
 
