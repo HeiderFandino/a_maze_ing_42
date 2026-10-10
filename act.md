@@ -1,6 +1,21 @@
-# Actualizaciones
-
 ## 2026-10-10 — Robustez del motor.
+
+### Estructura actual Reorganización de estructura del proyecto
+
+`text`
+.
+├── act.md
+├── app
+│   ├── __init__.py
+│   ├── colors.py
+│   └── interfaz.py
+├── config.txt
+├── Makefile
+├── mazegen
+│   ├── __init__.py
+│   └── maze.py
+├── pruebas.py
+└── README.md
 
 Se reforzó `MazeGenerator` para validar explícitamente sus entradas y evitar fallos accidentales durante la evaluación.
 

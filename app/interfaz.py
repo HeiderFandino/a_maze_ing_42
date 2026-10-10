@@ -1,5 +1,5 @@
-from .maze import MazeGenerator
-from . import colors
+from mazegen.maze import MazeGenerator
+from app import colors
 
 import time
 import os
@@ -135,7 +135,7 @@ class interfaz(MazeGenerator):
 
         print(f"[+] Laberinto guardado desde clase heredada en: {filename}")
 
-def Opciones(generador: interfaz) -> None:
+def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
     COLORS: List[str] = [
             colors.WHITE, colors.RED, colors.GREEN,
             colors.YELLOW, colors.BLUE, colors.MAGENTA,
@@ -159,7 +159,7 @@ def Opciones(generador: interfaz) -> None:
             choice: int = int(raw)
 
         except ValueError:
-            gen.render_frame(maze_color=maze_color)
+            generador.render_frame(maze_color=maze_color)
             print("\n[!] Invalid choice, please choose from 0-9")
             continue
         
@@ -252,7 +252,7 @@ def main() -> None:
         blocked=obstaculos,
     )
 
-    Opciones(generador)
+    Opciones(generador, obstaculos)
 
 
 if __name__ == "__main__":
