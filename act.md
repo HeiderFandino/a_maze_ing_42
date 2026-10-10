@@ -1,5 +1,75 @@
 # Actualizaciones
 
+## 2026-10-10 — Robustez del motor.
+
+Se reforzó `MazeGenerator` para validar explícitamente sus entradas y evitar fallos accidentales durante la evaluación.
+
+### Validaciones añadidas
+
+- `width` y `height`
+  - Deben ser `int` exactos.
+  - Se rechazan `bool`, `float`, `str`, `None`, etc. con `TypeError`.
+  - Deben ser mayores que `0`; en caso contrario se lanza `ValueError`.
+
+- `entry_pos` y `exit_pos`
+  - Deben ser tuplas.
+  - Deben contener exactamente dos elementos.
+  - Sus coordenadas deben ser enteros.
+  - Deben estar dentro de los límites del laberinto.
+  - Entrada y salida deben ser distintas.
+
+- `is_in_bounds`
+  - Valida los tipos de `x` e `y`.
+
+- `open_passage`
+  - Valida tipos de las cuatro coordenadas.
+  - Comprueba que ambas celdas estén dentro del grid.
+  - Solo permite celdas ortogonalmente adyacentes.
+  - Mantiene coherencia de paredes entre ambas celdas.
+
+- `blocked`
+  - Debe ser un `set`.
+  - Cada elemento debe ser una coordenada válida.
+  - No se permiten posiciones fuera del grid.
+  - No se permite bloquear `entry_pos` ni `exit_pos`.
+  - Se detectan regiones transitables desconectadas.
+
+- `seed`
+  - Contrato definido como `int | None`.
+  - Se rechazan tipos como `str`, `float` y `bool`.
+  - Se permiten semillas positivas, `0` y negativas.
+
+### Manejo de errores
+
+El motor mantiene la responsabilidad de lanzar excepciones concretas:
+
+- `TypeError`: tipo de dato incorrecto.
+- `ValueError`: tipo correcto pero valor o estado inválido.
+
+La capa exterior de la aplicación captura errores esperables mediante `try/except`, evitando tracebacks para errores de entrada controlados.
+
+No se utiliza `except Exception` para ocultar bugs de programación.
+
+### Cambios en `interfaz.py`
+
+Se mantuvo la separación entre el motor de generación y la capa visual/interactiva.
+
+- El estado de animación pertenece a `interfaz`, no a `MazeGenerator`.
+- `interfaz` mantiene:
+  - `self.animation`.
+  - `change_animation()`.
+  - renderizado del laberinto.
+  - menú interactivo.
+  - guardado visual/salida.
+- La generación DFS continúa en `MazeGenerator`.
+- La interfaz consume los eventos producidos por `_generate_dfs()` para poder mostrar la generación paso a paso.
+- Activar o desactivar la animación no modifica el resultado generado para una misma seed.
+- Se corrigieron los imports internos del paquete:
+  - `from .maze import MazeGenerator`
+  - import relativo de `colors` dentro de `mazegen`.
+
+Esto mantiene la responsabilidad del motor separada de la presentación y permite reutilizar `MazeGenerator` sin depender de terminal, colores o animación.
+
 ## 08/10/2026 - actualizacion M08 y M09
 
 ### M08: anadido regeneracion y cambio de colores

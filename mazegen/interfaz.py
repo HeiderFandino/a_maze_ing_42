@@ -1,5 +1,6 @@
-from maze import MazeGenerator
-import colors
+from .maze import MazeGenerator
+from . import colors
+
 import time
 import os
 
@@ -7,6 +8,7 @@ import os
 class interfaz(MazeGenerator):
     def __init__(self, width: int, height: int, entry_pos: tuple[int, int], exit_pos: tuple[int, int]) -> None:
         super().__init__(width, height, entry_pos, exit_pos)
+        self.animation: bool = False
 
     def draw_solid(self, maze_color: str = "\033[37m",
                    blocked: set[tuple[int, int]] | None = None) -> None:
@@ -80,6 +82,9 @@ class interfaz(MazeGenerator):
 
         # Anadimos la linea de cierre inferior
         print(f"{maze_color}{w}{w}{w}{w}{w}" * self.width)
+    
+    def change_animation(self) -> None:
+        self.animation = not self.animation
 
     def get_maze_str(self) -> str:
         """Convierte la cuadrícula de diccionarios
@@ -217,18 +222,17 @@ def Opciones(generador: interfaz) -> None:
                 maze_color=maze_color,
                 blocked=obstaculos,
             )
+
+
             
 
-if __name__ == "__main__":
+def main() -> None:
     ANCHO = 10
     ALTO = 10
 
     entry_pos = (0, 0)
     exit_pos = (9, 9)
-    obstaculos = set()
-
-    COLOR_CYAN = "\033[96m"
-    COLOR_RESET = "\033[0m"
+    obstaculos: set[tuple[int, int]] = set()
 
     generador = interfaz(
         width=ANCHO,
@@ -236,8 +240,6 @@ if __name__ == "__main__":
         entry_pos=entry_pos,
         exit_pos=exit_pos,
     )
-
-    print("Generando el laberinto en segundo plano...")
 
     for _ in generador._generate_dfs(
         blocked=obstaculos,
@@ -250,15 +252,27 @@ if __name__ == "__main__":
         blocked=obstaculos,
     )
 
-    print(
-        f"\n{COLOR_RESET}"
-        "[+] ¡Laberinto generado y dibujado con éxito!"
-    )
-    
     Opciones(generador)
 
-    # SOLO SI QUIERES GENERAR EL ARCHIVO HEXADECIMAL
-    # generador.save_maze(
-    #     "mi_laberinto.txt",
-    #     start_pos=entry_pos,
-    # )
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except TypeError as error:
+        print(f"[ERROR] Invalid type: {error}")
+
+    except ValueError as error:
+        print(f"[ERROR] Invalid value: {error}")
+
+    except RuntimeError as error:
+        print(f"[ERROR] Runtime error: {error}")
+
+    except OSError as error:
+        print(f"[ERROR] System or file error: {error}")
+
+    except KeyboardInterrupt:
+        print("\n[INFO] Program interrupted by user.")
+
+    except EOFError:
+        print("\n[INFO] Input stream closed.")
