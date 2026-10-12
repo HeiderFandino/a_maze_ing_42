@@ -1,5 +1,5 @@
 import random
-
+from collections import deque
 from collections.abc import Iterator
 
 
@@ -344,3 +344,318 @@ class MazeGenerator:
             raise ValueError(
                 "traversable cells must form one connected area"
             )
+    
+    def _get_open_neighbors(
+        self,
+        x: int,
+        y: int,
+    ) -> list[tuple[int, int]]:
+        """Return neighbors reachable through coherent open walls."""
+        if type(x) is not int or type(y) is not int:
+            raise TypeError("x and y must be integers")
+
+        if not self.is_in_bounds(x, y):
+            raise ValueError("coordinates must be inside the grid")
+
+        cell = self.grid[y][x]
+
+        directions = [
+            ("north", "south", 0, -1),
+            ("east", "west", 1, 0),
+            ("south", "north", 0, 1),
+            ("west", "east", -1, 0),
+        ]
+
+        neighbors: list[tuple[int, int]] = []
+
+        for wall, opposite_wall, dx, dy in directions:
+            if wall not in cell:
+                raise RuntimeError(
+                    f"cell {(x, y)} is missing wall '{wall}'"
+                )
+
+            if type(cell[wall]) is not bool:
+                raise RuntimeError(
+                    f"wall '{wall}' in cell {(x, y)} must be bool"
+                )
+
+            nx = x + dx
+            ny = y + dy
+
+            if not self.is_in_bounds(nx, ny):
+                if cell[wall] is False:
+                    raise ValueError(
+                        f"cell {(x, y)} has an open wall "
+                        "leading outside the grid"
+                    )
+                continue
+
+            neighbor = self.grid[ny][nx]
+
+            if opposite_wall not in neighbor:
+                raise RuntimeError(
+                    f"cell {(nx, ny)} is missing wall "
+                    f"'{opposite_wall}'"
+                )
+
+            if type(neighbor[opposite_wall]) is not bool:
+                raise RuntimeError(
+                    f"wall '{opposite_wall}' in cell "
+                    f"{(nx, ny)} must be bool"
+                )
+
+            if cell[wall] != neighbor[opposite_wall]:
+                raise ValueError(
+                    f"incoherent walls between "
+                    f"{(x, y)} and {(nx, ny)}"
+                )
+
+            if cell[wall] is False:
+                neighbors.append((nx, ny))
+
+        return neighbors
+
+
+    def _reconstruct_path(
+        self,
+        parents: dict[
+            tuple[int, int],
+            tuple[int, int] | None,
+        ],
+    ) -> list[tuple[int, int]]:
+        """Reconstruct a path from exit_pos back to entry_pos."""
+        if type(parents) is not dict:
+            raise TypeError("parents must be a dictionary")
+
+        if self.exit_pos not in parents:
+            raise ValueError(
+                "exit_pos is missing from the parent map"
+            )
+
+        path: list[tuple[int, int]] = []
+        seen: set[tuple[int, int]] = set()
+
+        current: tuple[int, int] | None = self.exit_pos
+
+        while current is not None:
+            if current in seen:
+                raise RuntimeError(
+                    "cycle detected while reconstructing path"
+                )
+
+            seen.add(current)
+            path.append(current)
+
+            if current not in parents:
+                raise RuntimeError(
+                    f"missing parent for cell {current}"
+                )
+
+            current = parents[current]
+
+        path.reverse()
+
+        if not path:
+            raise RuntimeError(
+                "reconstructed path is unexpectedly empty"
+            )
+
+        if path[0] != self.entry_pos:
+            raise RuntimeError(
+                "reconstructed path does not start at entry_pos"
+            )
+
+        if path[-1] != self.exit_pos:
+            raise RuntimeError(
+                "reconstructed path does not end at exit_pos"
+            )
+
+        return path
+
+
+    def shortest_path(self) -> list[tuple[int, int]]:
+        """Return the shortest path from entry to exit using BFS."""
+        if not hasattr(self, "grid"):
+            raise RuntimeError("grid is not initialized")
+
+        if type(self.grid) is not list or not self.grid:
+            raise RuntimeError(
+                "grid must be a non-empty list"
+            )
+
+        queue: deque[tuple[int, int]] = deque(
+            [self.entry_pos]
+        )
+
+        visited: set[tuple[int, int]] = {
+            self.entry_pos
+        }
+
+        parents: dict[
+            tuple[int, int],
+            tuple[int, int] | None,
+        ] = {
+            self.entry_pos: None
+        }
+
+        while queue:
+            current = queue.popleft()
+
+            if current == self.exit_pos:
+                return self._reconstruct_path(parents)
+
+            neighbors = self._get_open_neighbors(
+                current[0],
+                current[1],
+            )
+
+            for neighbor in neighbors:
+                if neighbor in visited:
+                    continue
+
+                visited.add(neighbor)
+                parents[neighbor] = current
+                queue.append(neighbor)
+
+        raise ValueError(
+            "no path exists between entry_pos and exit_pos"
+        )
+
+
+    def path_to_directions(
+        self,
+        path: list[tuple[int, int]],
+    ) -> str:
+        """Convert a valid path into N, E, S and W directions."""
+        if type(path) is not list:
+            raise TypeError(
+                "path must be a list of coordinate tuples"
+            )
+
+        if not path:
+            raise ValueError("path must not be empty")
+
+        for index, position in enumerate(path):
+            self._validate_coordinate(
+                position,
+                f"path[{index}]",
+            )
+
+            if not self.is_in_bounds(
+                position[0],
+                position[1],
+            ):
+                raise ValueError(
+                    f"path position {position} "
+                    "must be inside the grid"
+                )
+
+        if path[0] != self.entry_pos:
+            raise ValueError(
+                "path must start at entry_pos"
+            )
+
+        if path[-1] != self.exit_pos:
+            raise ValueError(
+                "path must end at exit_pos"
+            )
+
+        directions = ""
+
+        for index in range(len(path) - 1):
+            current = path[index]
+            next_position = path[index + 1]
+
+            open_neighbors = self._get_open_neighbors(
+                current[0],
+                current[1],
+            )
+
+            if next_position not in open_neighbors:
+                raise ValueError(
+                    f"invalid path step from "
+                    f"{current} to {next_position}"
+                )
+
+            x1, y1 = current
+            x2, y2 = next_position
+
+            dx = x2 - x1
+            dy = y2 - y1
+
+            if dx == 1 and dy == 0:
+                directions += "E"
+
+            elif dx == -1 and dy == 0:
+                directions += "W"
+
+            elif dx == 0 and dy == 1:
+                directions += "S"
+
+            elif dx == 0 and dy == -1:
+                directions += "N"
+
+            else:
+                raise RuntimeError(
+                    "unexpected movement in validated path"
+                )
+
+        return directions
+    
+    def shortest_path_steps(
+        self,
+    ) -> Iterator[
+        tuple[
+            str,
+            set[tuple[int, int]]
+            | list[tuple[int, int]],
+        ]
+    ]:
+        """Expose BFS search states and the final shortest path."""
+        queue: deque[tuple[int, int]] = deque(
+            [self.entry_pos]
+        )
+
+        visited: set[tuple[int, int]] = {
+            self.entry_pos
+        }
+
+        parents: dict[
+            tuple[int, int],
+            tuple[int, int] | None,
+        ] = {
+            self.entry_pos: None
+        }
+
+        while queue:
+            current = queue.popleft()
+
+            yield (
+                "search",
+                set(visited),
+            )
+
+            if current == self.exit_pos:
+                path = self._reconstruct_path(parents)
+
+                yield (
+                    "solution",
+                    path,
+                )
+
+                return
+
+            for neighbor in self._get_open_neighbors(
+                current[0],
+                current[1],
+            ):
+                if neighbor in visited:
+                    continue
+
+                visited.add(neighbor)
+                parents[neighbor] = current
+                queue.append(neighbor)
+
+        raise ValueError(
+            "no path exists between entry_pos and exit_pos"
+        )    

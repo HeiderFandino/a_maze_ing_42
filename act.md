@@ -1,3 +1,94 @@
+## 12/10/2026 — actualización H05 y soporte visual del camino mínimo
+
+### H05: camino más corto
+
+Se añadió al motor la resolución del laberinto mediante BFS.
+
+Nuevos métodos en `MazeGenerator`:
+
+- `shortest_path()`
+  - Calcula el camino mínimo entre `entry_pos` y `exit_pos`.
+  - Solo recorre pasos realmente abiertos.
+  - Reconstruye la ruta final mediante `parents`.
+
+- `_get_open_neighbors()`
+  - Devuelve únicamente vecinos accesibles según las paredes del laberinto.
+  - Comprueba coherencia entre paredes de celdas vecinas.
+
+- `_reconstruct_path()`
+  - Reconstruye el camino desde la salida hasta la entrada.
+
+- `path_to_directions(path)`
+  - Convierte una ruta a movimientos:
+    - `N`
+    - `E`
+    - `S`
+    - `W`
+
+También se añadió `shortest_path_steps()` para exponer el progreso de BFS sin meter lógica visual dentro del motor.
+
+Los eventos son:
+
+```python
+("search", visited)
+("solution", path)
+```
+
+### Cambios para la interfaz
+
+`draw_solid()` ahora puede recibir:
+
+```python
+path
+visited
+```
+
+Representación actual:
+
+- `S`: entrada
+- `E`: salida
+- `.`: camino final
+- `*`: celdas visitadas por BFS
+
+Esto permite que la interfaz pueda mostrar el camino mínimo o animar la búsqueda sin modificar `MazeGenerator`.
+
+### Información importante para Michele
+
+Para obtener la solución final:
+
+```python
+path = generador.shortest_path()
+directions = generador.path_to_directions(path)
+```
+
+Para una posible animación de resolución:
+
+```python
+generador.shortest_path_steps()
+```
+
+La futura opción `Show/Hide shortest path` del menú puede consumir estas funciones.
+
+### Estado temporal de `a_maze_ing.py`
+
+Actualmente ejecuta BFS automáticamente al arrancar para visualizar y comprobar la integración.
+
+Ese comportamiento es temporal de desarrollo y no debe considerarse el flujo definitivo de la aplicación.
+
+La gestión final del menú, mostrar/ocultar la solución y decidir cuándo ejecutar la animación queda pendiente de integración en la interfaz.
+
+### Exportación
+
+La interfaz ya puede generar la cuadrícula hexadecimal, pero el archivo final todavía debe incorporar la línea del camino mínimo en formato `NESW`.
+
+Ese valor ya puede obtenerse directamente con:
+
+```python
+generador.path_to_directions(
+    generador.shortest_path()
+)
+```
+
 ## 2026-10-10 — Robustez del motor.
 
 ### Estructura actual Reorganización de estructura del proyecto

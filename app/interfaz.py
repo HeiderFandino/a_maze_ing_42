@@ -10,8 +10,14 @@ class interfaz(MazeGenerator):
         super().__init__(width, height, entry_pos, exit_pos)
         self.animation: bool = False
 
-    def draw_solid(self, maze_color: str = "\033[37m",
-                   blocked: set[tuple[int, int]] | None = None) -> None:
+    def draw_solid(
+            self, 
+            maze_color: str = "\033[37m",
+            blocked: set[tuple[int, int]] | None = None,
+            path: list[tuple[int, int]] | None = None,
+            visited: set[tuple[int, int]] | None = None
+            
+    ) -> None:
         """Dibuja el laberinto usando bloques
         sólidos
         maze_color: Código ANSI para el color (por defecto blanco).
@@ -25,9 +31,15 @@ class interfaz(MazeGenerator):
         if blocked is None:
             blocked = set()
 
+        if path is None:
+            path = []
+
+        if visited is None:
+            visited = set()
+
         if not self.is_in_bounds(self.entry_pos[0], self.entry_pos[1]):
-            raise ValueError(f"La coordenada de inicio 'start_pos'"
-                             f" {start_pos} está fuera de los "
+            raise ValueError(f"La coordenada de inicio 'entry_pos'"
+                             f" {self.entry_pos} está fuera de los "
                              f"límites del laberinto.")
 
         for pos in blocked:
@@ -70,6 +82,13 @@ class interfaz(MazeGenerator):
                 elif (x, y) == self.exit_pos:
                     # Colocamos la 'E'
                     cell_representation = " E "
+                elif (x , y) in path:
+                    # Representacion del camino
+                    cell_representation = " . "
+                elif (x, y) in visited:
+                    # Representacion de las celdas visitadas
+                    cell_representation = " * "
+                    
                 else:
                     # Representacion del centro de la celda ordinaria (vacío)
                     cell_representation = "   "
@@ -136,7 +155,7 @@ class interfaz(MazeGenerator):
         print(f"[+] Laberinto guardado desde clase heredada en: {filename}")
 
 def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
-    COLORS: List[str] = [
+    COLORS: list[str] = [
             colors.WHITE, colors.RED, colors.GREEN,
             colors.YELLOW, colors.BLUE, colors.MAGENTA,
             colors.CYAN, colors.BROWN, colors.BLACK
@@ -222,57 +241,3 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
                 maze_color=maze_color,
                 blocked=obstaculos,
             )
-
-
-            
-
-def main() -> None:
-    ANCHO = 10
-    ALTO = 10
-
-    entry_pos = (0, 0)
-    exit_pos = (9, 9)
-    obstaculos: set[tuple[int, int]] = set()
-
-    generador = interfaz(
-        width=ANCHO,
-        height=ALTO,
-        entry_pos=entry_pos,
-        exit_pos=exit_pos,
-    )
-
-    for _ in generador._generate_dfs(
-        blocked=obstaculos,
-        seed=None,
-    ):
-        pass
-
-    generador.draw_solid(
-        maze_color=colors.CYAN,
-        blocked=obstaculos,
-    )
-
-    Opciones(generador, obstaculos)
-
-
-if __name__ == "__main__":
-    try:
-        main()
-
-    except TypeError as error:
-        print(f"[ERROR] Invalid type: {error}")
-
-    except ValueError as error:
-        print(f"[ERROR] Invalid value: {error}")
-
-    except RuntimeError as error:
-        print(f"[ERROR] Runtime error: {error}")
-
-    except OSError as error:
-        print(f"[ERROR] System or file error: {error}")
-
-    except KeyboardInterrupt:
-        print("\n[INFO] Program interrupted by user.")
-
-    except EOFError:
-        print("\n[INFO] Input stream closed.")
