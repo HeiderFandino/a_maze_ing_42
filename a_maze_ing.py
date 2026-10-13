@@ -1,17 +1,14 @@
 from app import colors
 from app.interfaz import Opciones, interfaz
 
-import os
-import time
-
 
 def main() -> None:
     """Create, generate and display the maze application."""
-    width: int = 20
-    height: int = 20    
+    width: int = 15
+    height: int = 15
 
     entry_pos: tuple[int, int] = (0, 0)
-    exit_pos: tuple[int, int] = (9, 9)
+    exit_pos: tuple[int, int] = (14, 14)
 
     generador = interfaz(
         width=width,
@@ -27,66 +24,6 @@ def main() -> None:
         seed=42,
     ):
         pass
-
-    for event, data in generador.shortest_path_steps():
-        os.system(
-            "clear"
-            if os.name == "posix"
-            else "cls"
-        )
-
-        if event == "search":
-            if not isinstance(data, set):
-                raise RuntimeError(
-                    "invalid BFS search event"
-                )
-
-            generador.draw_solid(
-                maze_color=colors.CYAN,
-                blocked=blocked,
-                visited=data,
-            )
-
-            print(
-                f"\nBFS visited cells: {len(data)}"
-            )
-
-            time.sleep(0.10)
-
-        elif event == "solution":
-            if not isinstance(data, list):
-                raise RuntimeError(
-                    "invalid BFS solution event"
-                )
-
-            generador.draw_solid(
-                maze_color=colors.CYAN,
-                blocked=blocked,
-                path=data,
-            )
-
-            directions = (
-                generador.path_to_directions(data)
-            )
-
-            print("\n=== BFS SOLUTION ===")
-            print(
-                f"Cells in path: {len(data)}"
-            )
-            print(
-                f"Movements: {len(directions)}"
-            )
-            print(
-                f"Directions: {directions}"
-            )
-            print("====================")
-
-            time.sleep(2)
-
-        else:
-            raise RuntimeError(
-                f"unknown BFS event: {event}"
-            )
 
     generador.draw_solid(
         maze_color=colors.CYAN,
