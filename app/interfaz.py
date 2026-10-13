@@ -151,8 +151,52 @@ class interfaz(MazeGenerator):
             f.write(self.get_maze_str())
             f.write(f"\n{self.entry_pos[0]},{self.entry_pos[1]}")
             f.write(f"\n{self.exit_pos[0]},{self.exit_pos[1]}\n")
+            try:
+                f.write(f"{self.path_to_directions(self.shortest_path())}")
+            except Exception as error:
+                print(f"[ERROR] An error ocurred: {error}")
+                return
 
         print(f"[+] Laberinto guardado desde clase heredada en: {filename}")
+
+def draw_dfs_again(generador: MazeGenerator, maze_color: str,
+    blocked: set[tuple[int, int]]) -> None:
+    for event, data in generador.shortest_path_steps():
+        os.system(
+            "clear"
+            if os.name == "posix"
+            else "cls"
+        )
+
+        if event == "search":
+            if not isinstance(data, set):
+                raise RuntimeError(
+                    "invalid BFS search event"
+                )
+
+            generador.draw_solid(
+                maze_color=maze_color,
+                blocked=blocked,
+                visited=data,
+            )
+
+            print(
+                f"\nBFS visited cells: {len(data)}"
+            )
+
+            time.sleep(0.04)
+
+        elif event == "solution":
+            if not isinstance(data, list):
+                raise RuntimeError(
+                    "invalid BFS solution event"
+                )
+
+            generador.draw_solid(
+                maze_color=maze_color,
+                blocked=blocked,
+                path=data,
+            )
 
 def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
     COLORS: list[str] = [
@@ -160,20 +204,22 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
             colors.YELLOW, colors.BLUE, colors.MAGENTA,
             colors.CYAN, colors.BROWN, colors.BLACK
         ]
-    maze_color = colors.CYAN
-    color_index = 7
+    maze_color: str = colors.CYAN
+    color_index: int = 7
+    path_show: bool = False
 
     while True:
         print(f"{colors.WHITE}\n=====  A-MAZE-ING  =====")
         print("1) Regenerate a New Maze")
         print("2) Change Maze Colors")
         print("3) Save Hex Maze to a File")
-        print(f"4) {'Disable' if generador.animation else 'Enable'} Animation")
+        print(f"4) {'Hide' if path_show else 'Show'} Path")
+        print(f"5) {'Disable' if generador.animation else 'Enable'} Animation")
         print("----------")
         print("0) Quit\n")
         
         try:
-            pt: str = "Chose from 0-4: "
+            pt: str = "Chose from 0-5: "
             raw: str = input(pt).strip()
             choice: int = int(raw)
 
@@ -182,7 +228,7 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
             print("\n[!] Invalid choice, please choose from 0-9")
             continue
         
-        if not 0 <= choice <= 4:
+        if not 0 <= choice <= 5:
             generador.draw_solid(
                 maze_color=maze_color,
                 blocked=obstaculos,
@@ -206,10 +252,13 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
                 else:
                     pass
             os.system('clear' if os.name == 'posix' else 'cls')
-            generador.draw_solid(
-                maze_color=maze_color,
-                blocked=obstaculos,
-            )
+            if path_show == True:
+                draw_dfs_again(generador, maze_color, obstaculos)
+            elif path_show == False:
+                generador.draw_solid(
+                    maze_color=maze_color,
+                    blocked=obstaculos, 
+                )
 
         elif choice == 2:
             color_index: int = (color_index + 1) % len(COLORS)
@@ -222,8 +271,18 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
             generador.save_maze(
                 "mi_laberinto.txt"
             )
-
+        
         elif choice == 4:
+            path_show = not path_show
+            if path_show == True:
+                draw_dfs_again(generador, maze_color, obstaculos)
+            elif path_show == False:
+                generador.draw_solid(
+                    maze_color=maze_color,
+                    blocked=obstaculos, 
+                )
+
+        elif choice == 5:
             print(f"\nAnimation {'Disabled' if generador.animation else 'Enabled'}!")
             generador.change_animation()
             for _ in generador._generate_dfs(
@@ -237,7 +296,10 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
                 else:
                     pass
             os.system('clear' if os.name == 'posix' else 'cls')
-            generador.draw_solid(
-                maze_color=maze_color,
-                blocked=obstaculos,
-            )
+            if path_show == True:
+                draw_dfs_again(generador, maze_color, obstaculos)
+            elif path_show == False:
+                generador.draw_solid(
+                    maze_color=maze_color,
+                    blocked=obstaculos, 
+                )
