@@ -7,13 +7,11 @@ import time
 
 def main() -> None:
     """Create, generate and display the maze application."""
-    width: int = 10
-    height: int = 10
+    width: int = 20
+    height: int = 20    
 
     entry_pos: tuple[int, int] = (0, 0)
     exit_pos: tuple[int, int] = (9, 9)
-
-    blocked: set[tuple[int, int]] = set()
 
     generador = interfaz(
         width=width,
@@ -22,14 +20,14 @@ def main() -> None:
         exit_pos=exit_pos,
     )
 
-    # Generamos primero el laberinto.
+    blocked = generador._get_42_pattern()
+
     for _ in generador._generate_dfs(
         blocked=blocked,
         seed=42,
     ):
         pass
 
-    # Animación del BFS.
     for event, data in generador.shortest_path_steps():
         os.system(
             "clear"
@@ -90,7 +88,6 @@ def main() -> None:
                 f"unknown BFS event: {event}"
             )
 
-    # Entramos al menú normal después de terminar la animación.
     generador.draw_solid(
         maze_color=colors.CYAN,
         blocked=blocked,

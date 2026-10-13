@@ -274,6 +274,77 @@ class MazeGenerator:
                 "seed must be an integer or None"
             )
 
+    def _get_42_pattern(self) -> set[tuple[int, int]]:
+        """Return blocked cells forming a centered 42 pattern."""
+        pattern_height = 5
+
+        four_pattern: set[tuple[int, int]] = {
+            (0, 0), (2, 0),
+            (0, 1), (2, 1),
+            (0, 2), (1, 2), (2, 2),
+            (2, 3),
+            (2, 4),
+        }
+
+        two_pattern: set[tuple[int, int]] = {
+            (0, 0), (1, 0), (2, 0),
+            (2, 1),
+            (0, 2), (1, 2), (2, 2),
+            (0, 3),
+            (0, 4), (1, 4), (2, 4),
+        }
+
+        center_gap = 1
+
+        digit_width = 3
+        pattern_width = digit_width + center_gap + digit_width
+
+        required_width = pattern_width + 2
+        required_height = pattern_height + 2
+
+        if (
+            self.width < required_width
+            or self.height < required_height
+        ):
+            raise ValueError(
+                "maze is too small to contain the 42 pattern"
+            )
+
+        start_x = (self.width - pattern_width) // 2
+        start_y = (self.height - pattern_height) // 2
+
+        blocked: set[tuple[int, int]] = set()
+
+        for relative_x, relative_y in four_pattern:
+            blocked.add(
+                (
+                    start_x + relative_x,
+                    start_y + relative_y,
+                )
+            )
+
+        two_start_x = start_x + digit_width + center_gap
+
+        for relative_x, relative_y in two_pattern:
+            blocked.add(
+                (
+                    two_start_x + relative_x,
+                    start_y + relative_y,
+                )
+            )
+
+        if self.entry_pos in blocked:
+            raise ValueError(
+                "42 pattern must not overlap entry_pos"
+            )
+
+        if self.exit_pos in blocked:
+            raise ValueError(
+                "42 pattern must not overlap exit_pos"
+            )
+
+        return blocked
+    
     def _generate_dfs(
         self,
         blocked: set[tuple[int, int]],
