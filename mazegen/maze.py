@@ -306,9 +306,9 @@ class MazeGenerator:
             self.width < required_width
             or self.height < required_height
         ):
-            raise ValueError(
-                "maze is too small to contain the 42 pattern"
-            )
+            print("WARNING: maze is too small to contain the 42 pattern")
+            print("CREATING MAZE WITHOUT 42 PATTERN")
+            return set()
 
         start_x = (self.width - pattern_width) // 2
         start_y = (self.height - pattern_height) // 2
