@@ -5,7 +5,7 @@ CONFIG = config.txt
 all: run
 
 install:
-	$(PYTHON) -m pip install flake8 mypy
+	$(PYTHON) -m pip install flake8 mypy pydantic
 
 run:
 	$(PYTHON) $(NAME) $(CONFIG)

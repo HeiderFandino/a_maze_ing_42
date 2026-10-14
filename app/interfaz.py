@@ -319,10 +319,24 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
         elif choice == 2:
             color_index: int = (color_index + 1) % len(COLORS)
             maze_color: str = COLORS[color_index]
-            generador.draw_solid(
-                maze_color=maze_color,
+            for _ in generador._generate_dfs(
                 blocked=obstaculos,
-            )
+                seed=None,
+            ):
+                if generador.animation == True:
+                    os.system('clear' if os.name == 'posix' else 'cls')
+                    generador.draw_solid(maze_color=maze_color, blocked=obstaculos)
+                    time.sleep(0.04)
+                else:
+                    pass
+            os.system('clear' if os.name == 'posix' else 'cls')
+            if path_show == True:
+                draw_dfs_again(generador, maze_color, obstaculos)
+            elif path_show == False:
+                generador.draw_solid(
+                    maze_color=maze_color,
+                    blocked=obstaculos, 
+                )
         elif choice == 3:
             generador.save_maze(
                 "mi_laberinto.txt"

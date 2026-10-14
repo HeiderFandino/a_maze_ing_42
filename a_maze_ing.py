@@ -1,14 +1,17 @@
 from app import colors
 from app.interfaz import Opciones, interfaz
+from config import Parsing
 
 
 def main() -> None:
     """Create, generate and display the maze application."""
-    width: int = 15
-    height: int = 15
+    parser: Parsing = Parsing("config.txt")
+    parser.set_config()
+    width: int = parser.WIDTH
+    height: int = parser.HEIGHT
 
-    entry_pos: tuple[int, int] = (0, 0)
-    exit_pos: tuple[int, int] = (14, 14)
+    entry_pos: tuple[int, int] = parser.ENTRY
+    exit_pos: tuple[int, int] = parser.EXIT
 
     generador = interfaz(
         width=width,
