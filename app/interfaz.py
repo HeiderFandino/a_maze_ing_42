@@ -280,7 +280,6 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
             choice: int = int(raw)
 
         except ValueError:
-            generador.render_frame(maze_color=maze_color)
             print("\n[!] Invalid choice, please choose from 0-9")
             continue
         
