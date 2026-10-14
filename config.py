@@ -21,8 +21,8 @@ CoordinateTuple = Annotated[tuple[int, int], BeforeValidator(parse_coordinate_st
 
 # 1. Definimos el modelo principal de configuración con sus reglas
 class MazeConfig(BaseModel):
-    width: int = Field(..., ge=9, le=45)
-    height: int = Field(..., ge=7, le=45)
+    width: int = Field(..., ge=1, le=45)
+    height: int = Field(..., ge=1, le=45)
     entry: CoordinateTuple
     exit: CoordinateTuple
     output_file: NewPath  # Valida que sea una ruta válida donde se pueda escribir

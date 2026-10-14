@@ -1,7 +1,7 @@
-WIDTH           = 15
-HEIGHT          = 15
+WIDTH           = 9
+HEIGHT          = 13
 ENTRY           = 0,0
-EXIT            = 14,14
+EXIT            = 5,5
 OUTPUT_FILE     = maze.txt
 PERFECT         = True
 #SEED            = 42
