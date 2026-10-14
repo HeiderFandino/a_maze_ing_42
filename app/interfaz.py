@@ -60,16 +60,27 @@ class interfaz(MazeGenerator):
                 current = (x, y)
 
                 if current in blocked:
-                    line1 += (
-                        f"{colors.GRAY}"
-                        f"{w}{w}{w}{w}{w}"
-                        f"{maze_color}"
-                    )
+                    blocked_up = (x, y - 1) in blocked
+                    blocked_left = (x - 1, y) in blocked
+                    blocked_right = (x + 1, y) in blocked
+
+                    if blocked_up:
+                        line1 += (
+                            f"{maze_color}{w}"
+                            f"{colors.GRAY}{w}{w}{w}"
+                            f"{maze_color}{w}"
+                        )
+                    else:
+                        line1 += (
+                            f"{maze_color}{w}{w}{w}{w}{w}"
+                        )
+
                     line2 += (
-                        f"{colors.GRAY}"
-                        f"{w}{w}{w}{w}{w}"
-                        f"{maze_color}"
+                        f"{colors.GRAY if blocked_left else maze_color}{w}"
+                        f"{colors.GRAY}{w}{w}{w}"
+                        f"{colors.GRAY if blocked_right else maze_color}{w}"
                     )
+
                     continue
 
                 cell = self.grid[y][x]
