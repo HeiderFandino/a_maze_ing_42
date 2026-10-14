@@ -1,5 +1,5 @@
 WIDTH           = 9
-HEIGHT          = 13
+HEIGHT          = 14
 ENTRY           = 0,0
 EXIT            = 5,5
 OUTPUT_FILE     = maze.txt

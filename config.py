@@ -1,7 +1,7 @@
 import sys
 from typing import Optional
 from configparser import ConfigParser
-from pydantic import BaseModel, Field, NewPath, model_validator, BeforeValidator
+from pydantic import BaseModel, Field, NewPath, model_validator, BeforeValidator, ConfigDict, ValidationError
 from typing_extensions import Annotated
 
 
@@ -21,6 +21,7 @@ CoordinateTuple = Annotated[tuple[int, int], BeforeValidator(parse_coordinate_st
 
 # 1. Definimos el modelo principal de configuración con sus reglas
 class MazeConfig(BaseModel):
+    model_config = ConfigDict(hide_input_errors=True)
     width: int = Field(..., ge=1, le=45)
     height: int = Field(..., ge=1, le=45)
     entry: CoordinateTuple
@@ -94,6 +95,19 @@ class Parsing:
         except PermissionError:
             print("You have no permission to read/write files")
             sys.exit(1)
-        except Exception as e:
-            print(f"Error in parsing:\n{e}")
+        except ValidationError as e:
+            print("Error in parsing:")
+            for error in e.errors():
+                # 1. Si el error viene de un @model_validator global, 'loc' estará vacío
+                if not error['loc']:
+                    print(f"  [!] Global rule: {error['msg']}")
+                else:
+                    # 2. Si viene de un campo individual, unimos la ruta del campo de forma segura
+                    campo = " -> ".join(str(x) for x in error['loc'])
+                    print(f"  [!] {campo}: {error['msg']}")
             sys.exit(1)
+        # 👇 Deja este al final para cualquier otro error inesperado de Python
+        except Exception as e:
+            print(f"Unexpected error in parsing:\n{e}")
+            sys.exit(1)
+
