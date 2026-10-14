@@ -316,11 +316,12 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
                 )
 
         elif choice == 2:
+            os.system('clear' if os.name == 'posix' else 'cls')
             color_index: int = (color_index + 1) % len(COLORS)
             maze_color: str = COLORS[color_index]
             for _ in generador._generate_dfs(
                 blocked=obstaculos,
-                seed=None,
+                seed=generador.seed_utilizada,
             ):
                 if generador.animation == True:
                     os.system('clear' if os.name == 'posix' else 'cls')
@@ -346,6 +347,7 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
             if path_show == True:
                 draw_dfs_again(generador, maze_color, obstaculos)
             elif path_show == False:
+                os.system('clear' if os.name == 'posix' else 'cls')
                 generador.draw_solid(
                     maze_color=maze_color,
                     blocked=obstaculos, 
@@ -356,7 +358,7 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
             generador.change_animation()
             for _ in generador._generate_dfs(
                 blocked=obstaculos,
-                seed=None,
+                seed=generador.seed_utilizada,
             ):
                 if generador.animation == True:
                     os.system('clear' if os.name == 'posix' else 'cls')
@@ -368,6 +370,7 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
             if path_show == True:
                 draw_dfs_again(generador, maze_color, obstaculos)
             elif path_show == False:
+                os.system('clear' if os.name == 'posix' else 'cls')
                 generador.draw_solid(
                     maze_color=maze_color,
                     blocked=obstaculos, 

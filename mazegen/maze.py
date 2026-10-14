@@ -366,8 +366,14 @@ class MazeGenerator:
         self._validate_seed(seed)
 
         self.grid = self._create_grid()
+        if seed is None:
+            self.seed_utilizada = random.randint(0, 1000000)
+        else:
+            # Si ya tenía una semilla (Opción 2 y 5), mantenemos la misma
+            self.seed_utilizada = seed
 
-        rng = random.Random(seed)
+        # 2. Inicializamos el motor con la semilla numérica real fija
+        rng = random.Random(self.seed_utilizada)
 
         visited: set[tuple[int, int]] = {
             self.entry_pos
