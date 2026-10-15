@@ -3,6 +3,7 @@ from app import colors
 
 import time
 import os
+import sys
 
 
 class interfaz(MazeGenerator):
@@ -265,7 +266,17 @@ def draw_dfs_again(generador: MazeGenerator, maze_color: str,
                 path=data,
             )
 
-def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
+def flush_input():
+    """Limpia el buffer de la terminal para ignorar lo escrito durante las animaciones."""
+    if sys.platform == "win32":
+        import msvcrt
+        while msvcrt.kbhit():
+            msvcrt.getch()
+    else:
+        from termios import tcflush, TCIFLUSH
+        tcflush(sys.stdin, TCIFLUSH)
+
+def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]], file_name: str) -> None:
     COLORS: list[str] = [
             colors.WHITE, colors.RED, colors.GREEN,
             colors.YELLOW, colors.BLUE, colors.MAGENTA,
@@ -287,11 +298,12 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
         
         try:
             pt: str = "Chose from 0-5: "
+            flush_input()
             raw: str = input(pt).strip()
             choice: int = int(raw)
 
         except ValueError:
-            print("\n[!] Invalid choice, please choose from 0-9")
+            print("\n[!] Invalid choice, please choose from 0-5")
             continue
         
         if not 0 <= choice <= 5:
@@ -299,7 +311,7 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
                 maze_color=maze_color,
                 blocked=obstaculos,
             )
-            print("\n[!] Invalid choice, please choose from 0-9")
+            print("\n[!] Invalid choice, please choose from 0-5")
             continue
 
         if choice == 0:
@@ -350,7 +362,7 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]]) -> None:
                 )
         elif choice == 3:
             generador.save_maze(
-                "mi_laberinto.txt"
+                file_name
             )
         
         elif choice == 4:
