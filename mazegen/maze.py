@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-
+from .braiding import braid_maze
 from .generation import generate_dfs
 from .pathfinding import (
     path_to_directions as find_path_directions,
@@ -643,3 +643,18 @@ class MazeGenerator:
         return find_shortest_path_steps(
             self
         )
+    def braid(
+        self,
+        blocked: set[tuple[int, int]],
+        seed: int | None = None,
+        max_dead_ends: int = 2,
+        min_loops: int = 2,
+    ) -> int:
+        """Transform a perfect maze into a braided maze."""
+        return braid_maze(
+            self,
+            blocked,
+            seed,
+            max_dead_ends,
+            min_loops,
+    )
