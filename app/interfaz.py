@@ -276,12 +276,18 @@ def flush_input():
         from termios import tcflush, TCIFLUSH
         tcflush(sys.stdin, TCIFLUSH)
 
-def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]], file_name: str) -> None:
+def Opciones(
+    generador: interfaz,
+    obstaculos: set[tuple[int, int]],
+    file_name: str,
+    perfect: bool,
+) -> None:
     COLORS: list[str] = [
-            colors.WHITE, colors.RED, colors.GREEN,
-            colors.YELLOW, colors.BLUE, colors.MAGENTA,
-            colors.CYAN, colors.BROWN, colors.BLACK
-        ]
+        colors.WHITE, colors.RED, colors.GREEN,
+        colors.YELLOW, colors.BLUE, colors.MAGENTA,
+        colors.CYAN, colors.BROWN, colors.BLACK
+    ]
+
     maze_color: str = colors.CYAN
     color_index: int = 7
     path_show: bool = False
@@ -292,10 +298,14 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]], file_name: s
         print("2) Change Maze Colors")
         print("3) Save Hex Maze to a File")
         print(f"4) {'Hide' if path_show else 'Show'} Path")
-        print(f"5) {'Disable' if generador.animation else 'Enable'} Animation")
+        print(
+            f"5) "
+            f"{'Disable' if generador.animation else 'Enable'} "
+            f"Animation"
+        )
         print("----------")
         print("0) Quit\n")
-        
+
         try:
             pt: str = "Chose from 0-5: "
             flush_input()
@@ -303,15 +313,22 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]], file_name: s
             choice: int = int(raw)
 
         except ValueError:
-            print("\n[!] Invalid choice, please choose from 0-5")
+            print(
+                "\n[!] Invalid choice, "
+                "please choose from 0-5"
+            )
             continue
-        
+
         if not 0 <= choice <= 5:
             generador.draw_solid(
                 maze_color=maze_color,
                 blocked=obstaculos,
             )
-            print("\n[!] Invalid choice, please choose from 0-5")
+
+            print(
+                "\n[!] Invalid choice, "
+                "please choose from 0-5"
+            )
             continue
 
         if choice == 0:
@@ -324,77 +341,197 @@ def Opciones(generador: interfaz, obstaculos: set[tuple[int, int]], file_name: s
                 seed=None,
             ):
                 if generador.animation == True:
-                    os.system('clear' if os.name == 'posix' else 'cls')
-                    generador.draw_solid(maze_color=maze_color, blocked=obstaculos)
+                    os.system(
+                        'clear'
+                        if os.name == 'posix'
+                        else 'cls'
+                    )
+
+                    generador.draw_solid(
+                        maze_color=maze_color,
+                        blocked=obstaculos,
+                    )
+
                     time.sleep(0.04)
+
                 else:
                     pass
-            os.system('clear' if os.name == 'posix' else 'cls')
+
+            if not perfect:
+                generador.braid(
+                    blocked=obstaculos,
+                    seed=generador.seed_utilizada,
+                    max_dead_ends=2,
+                    min_loops=2,
+                )
+
+            os.system(
+                'clear'
+                if os.name == 'posix'
+                else 'cls'
+            )
+
             if path_show == True:
-                draw_dfs_again(generador, maze_color, obstaculos)
+                draw_dfs_again(
+                    generador,
+                    maze_color,
+                    obstaculos,
+                )
+
             elif path_show == False:
                 generador.draw_solid(
                     maze_color=maze_color,
-                    blocked=obstaculos, 
+                    blocked=obstaculos,
                 )
 
         elif choice == 2:
-            os.system('clear' if os.name == 'posix' else 'cls')
-            color_index: int = (color_index + 1) % len(COLORS)
-            maze_color: str = COLORS[color_index]
+            os.system(
+                'clear'
+                if os.name == 'posix'
+                else 'cls'
+            )
+
+            color_index: int = (
+                color_index + 1
+            ) % len(COLORS)
+
+            maze_color: str = COLORS[
+                color_index
+            ]
+
             for _ in generador._generate_dfs(
                 blocked=obstaculos,
                 seed=generador.seed_utilizada,
             ):
                 if generador.animation == True:
-                    os.system('clear' if os.name == 'posix' else 'cls')
-                    generador.draw_solid(maze_color=maze_color, blocked=obstaculos)
+                    os.system(
+                        'clear'
+                        if os.name == 'posix'
+                        else 'cls'
+                    )
+
+                    generador.draw_solid(
+                        maze_color=maze_color,
+                        blocked=obstaculos,
+                    )
+
                     time.sleep(0.04)
+
                 else:
                     pass
-            os.system('clear' if os.name == 'posix' else 'cls')
+
+            if not perfect:
+                generador.braid(
+                    blocked=obstaculos,
+                    seed=generador.seed_utilizada,
+                    max_dead_ends=2,
+                    min_loops=2,
+                )
+
+            os.system(
+                'clear'
+                if os.name == 'posix'
+                else 'cls'
+            )
+
             if path_show == True:
-                draw_dfs_again(generador, maze_color, obstaculos)
+                draw_dfs_again(
+                    generador,
+                    maze_color,
+                    obstaculos,
+                )
+
             elif path_show == False:
                 generador.draw_solid(
                     maze_color=maze_color,
-                    blocked=obstaculos, 
+                    blocked=obstaculos,
                 )
+
         elif choice == 3:
             generador.save_maze(
                 file_name
             )
-        
+
         elif choice == 4:
             path_show = not path_show
+
             if path_show == True:
-                draw_dfs_again(generador, maze_color, obstaculos)
+                draw_dfs_again(
+                    generador,
+                    maze_color,
+                    obstaculos,
+                )
+
             elif path_show == False:
-                os.system('clear' if os.name == 'posix' else 'cls')
+                os.system(
+                    'clear'
+                    if os.name == 'posix'
+                    else 'cls'
+                )
+
                 generador.draw_solid(
                     maze_color=maze_color,
-                    blocked=obstaculos, 
+                    blocked=obstaculos,
                 )
 
         elif choice == 5:
-            print(f"\nAnimation {'Disabled' if generador.animation else 'Enabled'}!")
+            print(
+                f"\nAnimation "
+                f"{'Disabled' if generador.animation else 'Enabled'}!"
+            )
+
             generador.change_animation()
+
             for _ in generador._generate_dfs(
                 blocked=obstaculos,
                 seed=generador.seed_utilizada,
             ):
                 if generador.animation == True:
-                    os.system('clear' if os.name == 'posix' else 'cls')
-                    generador.draw_solid(maze_color=maze_color, blocked=obstaculos)
+                    os.system(
+                        'clear'
+                        if os.name == 'posix'
+                        else 'cls'
+                    )
+
+                    generador.draw_solid(
+                        maze_color=maze_color,
+                        blocked=obstaculos,
+                    )
+
                     time.sleep(0.04)
+
                 else:
                     pass
-            os.system('clear' if os.name == 'posix' else 'cls')
+
+            if not perfect:
+                generador.braid(
+                    blocked=obstaculos,
+                    seed=generador.seed_utilizada,
+                    max_dead_ends=2,
+                    min_loops=2,
+                )
+
+            os.system(
+                'clear'
+                if os.name == 'posix'
+                else 'cls'
+            )
+
             if path_show == True:
-                draw_dfs_again(generador, maze_color, obstaculos)
+                draw_dfs_again(
+                    generador,
+                    maze_color,
+                    obstaculos,
+                )
+
             elif path_show == False:
-                os.system('clear' if os.name == 'posix' else 'cls')
+                os.system(
+                    'clear'
+                    if os.name == 'posix'
+                    else 'cls'
+                )
+
                 generador.draw_solid(
                     maze_color=maze_color,
-                    blocked=obstaculos, 
+                    blocked=obstaculos,
                 )

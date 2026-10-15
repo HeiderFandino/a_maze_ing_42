@@ -7,6 +7,7 @@ def main() -> None:
     """Create, generate and display the maze application."""
     parser: Parsing = Parsing("config.txt")
     parser.set_config()
+
     width: int = parser.WIDTH
     height: int = parser.HEIGHT
 
@@ -24,9 +25,17 @@ def main() -> None:
 
     for _ in generador._generate_dfs(
         blocked=blocked,
-        seed=42,
+        seed=parser.SEED,
     ):
         pass
+
+    if parser.PERFECT is False:
+        generador.braid(
+            blocked=blocked,
+            seed=generador.seed_utilizada,
+            max_dead_ends=2,
+            min_loops=2,
+        )
 
     generador.draw_solid(
         maze_color=colors.CYAN,
@@ -37,6 +46,7 @@ def main() -> None:
         generador,
         blocked,
         parser.OUTPUT_FILE,
+        bool(parser.PERFECT),
     )
 
 
