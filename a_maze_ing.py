@@ -36,6 +36,7 @@ def main() -> None:
     Opciones(
         generador,
         blocked,
+        parser.OUTPUT_FILE,
     )
 
 

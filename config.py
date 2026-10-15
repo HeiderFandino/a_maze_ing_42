@@ -1,7 +1,10 @@
 import sys
+import warnings
 from typing import Optional
 from configparser import ConfigParser
-from pydantic import BaseModel, Field, NewPath, model_validator, BeforeValidator, ConfigDict, ValidationError
+from pathlib import Path
+from typing import Union
+from pydantic import BaseModel, Field, FilePath, AfterValidator, model_validator, BeforeValidator, ConfigDict, ValidationError, NewPath
 from typing_extensions import Annotated
 
 
@@ -19,19 +22,28 @@ def parse_coordinate_string(v: any) -> tuple[int, int]:
 CoordinateTuple = Annotated[tuple[int, int], BeforeValidator(parse_coordinate_string)]
 
 
+def validate_txt_extension(v: Path) -> Path:
+    """Asegura que el archivo tenga extensión .txt"""
+    if v.suffix.lower() != '.txt':
+        raise ValueError("The output file must have a .txt extension")
+    return v
+
+TxtFilePath = Annotated[FilePath, AfterValidator(validate_txt_extension)]
+
 # 1. Definimos el modelo principal de configuración con sus reglas
 class MazeConfig(BaseModel):
-    model_config = ConfigDict(hide_input_errors=True)
+    model_config = ConfigDict(extra='allow')
     width: int = Field(..., ge=1, le=45)
     height: int = Field(..., ge=1, le=45)
     entry: CoordinateTuple
     exit: CoordinateTuple
-    output_file: NewPath  # Valida que sea una ruta válida donde se pueda escribir
+    output_file: Union[FilePath, NewPath] = Field(..., discriminator=None)
     perfect: bool
     seed: Optional[int] = None
 
     @model_validator(mode="after")
     def validate_maze_rules(self) -> "MazeConfig":
+        validate_txt_extension(self.output_file)
         # Regla: La entrada y la salida no pueden ser iguales
         if self.entry == self.exit:
             raise ValueError("Entry & exit must not be the same point")
@@ -80,6 +92,9 @@ class Parsing:
             # Pydantic llamará automáticamente a 'parse_coordinate_string' gracias al BeforeValidator
             validated_data = MazeConfig(**root_data)
 
+            if validated_data.model_extra:
+                extra_keys = ", ".join(validated_data.model_extra.keys())
+                print(f"WARNING: The variables '{extra_keys}' found in the {self.config_file} file are not being used")
             # Mapear los datos validados a los atributos de la clase
             self.WIDTH = validated_data.width
             self.HEIGHT = validated_data.height
@@ -106,7 +121,7 @@ class Parsing:
                     campo = " -> ".join(str(x) for x in error['loc'])
                     print(f"  [!] {campo}: {error['msg']}")
             sys.exit(1)
-        # 👇 Deja este al final para cualquier otro error inesperado de Python
+        #Deja este al final para cualquier otro error inesperado de Python
         except Exception as e:
             print(f"Unexpected error in parsing:\n{e}")
             sys.exit(1)
