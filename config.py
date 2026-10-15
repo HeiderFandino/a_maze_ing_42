@@ -1,15 +1,17 @@
 import sys
-import warnings
 from typing import Optional
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Union
-from pydantic import BaseModel, Field, FilePath, AfterValidator, model_validator, BeforeValidator, ConfigDict, ValidationError, NewPath
+from pydantic import (BaseModel, Field, FilePath,
+                      AfterValidator, model_validator, BeforeValidator,
+                      ConfigDict, ValidationError, NewPath)
 from typing_extensions import Annotated
 
 
 def parse_coordinate_string(v: any) -> tuple[int, int]:
-    """Función para convertir una cadena 'x,y' en una tupla (x, y) antes de validar"""
+    """Función para convertir una cadena 'x,y'
+    en una tupla (x, y) antes de validar"""
     if isinstance(v, str):
         try:
             parts = v.strip().split(",")
@@ -18,8 +20,10 @@ def parse_coordinate_string(v: any) -> tuple[int, int]:
             raise ValueError("Debe tener el formato 'entero,entero' (ej: 1,2)")
     return v
 
+
 # Definimos un tipo personalizado que aplica la conversión automáticamente
-CoordinateTuple = Annotated[tuple[int, int], BeforeValidator(parse_coordinate_string)]
+CoordinateTuple = (Annotated[tuple[int, int],
+                   BeforeValidator(parse_coordinate_string)])
 
 
 def validate_txt_extension(v: Path) -> Path:
@@ -28,7 +32,9 @@ def validate_txt_extension(v: Path) -> Path:
         raise ValueError("The output file must have a .txt extension")
     return v
 
+
 TxtFilePath = Annotated[FilePath, AfterValidator(validate_txt_extension)]
+
 
 # 1. Definimos el modelo principal de configuración con sus reglas
 class MazeConfig(BaseModel):
@@ -47,21 +53,21 @@ class MazeConfig(BaseModel):
         # Regla: La entrada y la salida no pueden ser iguales
         if self.entry == self.exit:
             raise ValueError("Entry & exit must not be the same point")
-        
+
         # Regla: Coordenadas dentro de los límites del laberinto
         # self.entry[0] es 'x', self.entry[1] es 'y'
         if self.entry[0] >= self.width or self.entry[1] >= self.height:
             raise ValueError("Entry coordinates out of range")
-            
+
         if self.exit[0] >= self.width or self.exit[1] >= self.height:
             raise ValueError("Exit coordinates out of range")
-            
+
         # Regla complementaria: Las coordenadas no deben ser negativas
         if self.entry[0] < 0 or self.entry[1] < 0:
             raise ValueError("Entry coordinates cannot be negative")
         if self.exit[0] < 0 or self.exit[1] < 0:
             raise ValueError("Exit coordinates cannot be negative")
-            
+
         return self
 
 
@@ -86,15 +92,17 @@ class Parsing:
             with open(self.config_file, 'r') as f:
                 config_string = '[root]\n' + f.read()
                 config.read_string(config_string)
-            
+
             root_data = dict(config['root'])
-            
-            # Pydantic llamará automáticamente a 'parse_coordinate_string' gracias al BeforeValidator
+
+            # Pydantic llamará automáticamente a 'parse_coordinate_string'
+            # gracias al BeforeValidator
             validated_data = MazeConfig(**root_data)
 
             if validated_data.model_extra:
                 extra_keys = ", ".join(validated_data.model_extra.keys())
-                print(f"WARNING: The variables '{extra_keys}' found in the {self.config_file} file are not being used")
+                print(f"WARNING: The variables '{extra_keys}' found in "
+                      f"the {self.config_file} file are not being used")
             # Mapear los datos validados a los atributos de la clase
             self.WIDTH = validated_data.width
             self.HEIGHT = validated_data.height
@@ -113,16 +121,17 @@ class Parsing:
         except ValidationError as e:
             print("Error in parsing:")
             for error in e.errors():
-                # 1. Si el error viene de un @model_validator global, 'loc' estará vacío
+                # 1. Si el error viene de un @model_validator
+                # global, 'loc' estará vacío
                 if not error['loc']:
                     print(f"  [!] Global rule: {error['msg']}")
                 else:
-                    # 2. Si viene de un campo individual, unimos la ruta del campo de forma segura
+                    # 2. Si viene de un campo individual, unimos
+                    # la ruta del campo de forma segura
                     campo = " -> ".join(str(x) for x in error['loc'])
                     print(f"  [!] {campo}: {error['msg']}")
             sys.exit(1)
-        #Deja este al final para cualquier otro error inesperado de Python
+        # Deja este al final para cualquier otro error inesperado de Python
         except Exception as e:
             print(f"Unexpected error in parsing:\n{e}")
             sys.exit(1)
-
