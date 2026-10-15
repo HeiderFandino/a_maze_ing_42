@@ -550,7 +550,7 @@ def braid_maze(
     maze: "MazeGenerator",
     blocked: set[Position],
     seed: int | None = None,
-    max_dead_ends: int = 2,
+    max_dead_ends: int = 0,
     min_loops: int = 2,
 ) -> int:
     """Transform a perfect maze into a valid non-perfect maze."""

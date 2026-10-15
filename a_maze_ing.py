@@ -33,7 +33,7 @@ def main() -> None:
         generador.braid(
             blocked=blocked,
             seed=generador.seed_utilizada,
-            max_dead_ends=2,
+            max_dead_ends=0,
             min_loops=2,
         )
 
