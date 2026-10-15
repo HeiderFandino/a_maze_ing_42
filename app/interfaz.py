@@ -7,7 +7,8 @@ import sys
 
 
 class interfaz(MazeGenerator):
-    def __init__(self, width: int, height: int, entry_pos: tuple[int, int], exit_pos: tuple[int, int]) -> None:
+    def __init__(self, width: int, height: int, entry_pos:
+                 tuple[int, int], exit_pos: tuple[int, int]) -> None:
         super().__init__(width, height, entry_pos, exit_pos)
         self.animation: bool = False
 
@@ -18,11 +19,11 @@ class interfaz(MazeGenerator):
         path: list[tuple[int, int]] | None = None,
         visited: set[tuple[int, int]] | None = None
     ) -> None:
-        """Dibuja el laberinto usando bloques sólidos."""
+        """Draw the maze using solid blocks."""
         if not hasattr(self, 'grid') or not self.grid or len(self.grid) == 0:
             raise RuntimeError(
-                "No se puede dibujar: La cuadrícula del laberinto "
-                "no está inicializada o está vacía."
+                "Unable to draw: The maze's grid "
+                "is not initialized or is empty."
             )
 
         if blocked is None:
@@ -39,15 +40,15 @@ class interfaz(MazeGenerator):
             self.entry_pos[1]
         ):
             raise ValueError(
-                f"La coordenada de inicio 'entry_pos' "
-                f"{self.entry_pos} está fuera de los límites del laberinto."
+                f"The entry coordinate 'entry_pos' "
+                f"{self.entry_pos} is outside the limits of the maze."
             )
 
         for pos in blocked:
             if not self.is_in_bounds(pos[0], pos[1]):
                 raise ValueError(
-                    f"La celda bloqueada {pos} "
-                    f"está fuera de los límites del laberinto."
+                    f"The blocked cell {pos} "
+                    f"is outside the limits of the maze."
                 )
 
         w = "█"
@@ -86,7 +87,6 @@ class interfaz(MazeGenerator):
 
                 cell = self.grid[y][x]
 
-                # Pared norte
                 if cell["north"]:
                     line1 += f"{w}{w}{w}{w}{w}"
                 else:
@@ -106,7 +106,6 @@ class interfaz(MazeGenerator):
                     else:
                         line1 += f"{w}   {w}"
 
-                # Pared izquierda
                 if cell["west"]:
                     left = w
                 elif (
@@ -121,7 +120,6 @@ class interfaz(MazeGenerator):
                 else:
                     left = " "
 
-                # Pared derecha
                 if cell["east"]:
                     right = w
                 elif (
@@ -136,7 +134,6 @@ class interfaz(MazeGenerator):
                 else:
                     right = " "
 
-                # Contenido de la celda
                 if current == self.entry_pos:
                     cell_representation = " S "
 
@@ -169,22 +166,18 @@ class interfaz(MazeGenerator):
             f"{maze_color}"
             f"{w}{w}{w}{w}{w}" * self.width
         )
-        
+
     def change_animation(self) -> None:
         self.animation = not self.animation
 
     def get_maze_str(self) -> str:
-        """Convierte la cuadrícula de diccionarios
-         en un string de caracteres hexadecimales."""
+        """Translates the grid of dictionaries
+         in a string made of hexadecimal numbers."""
         output = ""
-        # Accedemos directamente a self.height y self.width de la clase padre
         for y in range(self.height):
             for x in range(self.width):
-                # Accedemos directamente a self.grid de la clase padre
                 cell = self.grid[y][x]
 
-                # Calculamos el valor decimal sumando
-                # el peso de cada pared cerrada
                 val = 0
                 if cell["north"]:
                     val += 1  # Bit 0
@@ -200,20 +193,21 @@ class interfaz(MazeGenerator):
         return output
 
     def save_maze(self, filename: str) -> None:
-        """Guarda la estructura del laberinto en un
-         archivo de texto en formato hexadecimal."""
-        # Validacion de seguridad heredando el uso seguro con hasattr
+        """Saves the structure of the maze into
+         a .txt file in a hexadecimal format."""
         if not hasattr(self, 'grid') or not self.grid or len(self.grid) == 0:
-            raise RuntimeError("No se puede guardar: La "
-                               "cuadrícula no está inicializada.")
+            raise RuntimeError("Unable to save: The "
+                               "grid is not initialized.")
 
         if not self.is_in_bounds(self.entry_pos[0], self.entry_pos[1]):
-            raise ValueError(f"La coordenada 'entry_pos' "
-                             f"{self.entry_pos} está fuera de los límites.")
-        
+            raise ValueError(f"The entry coordinate 'entry_pos' "
+                             f"{self.entry_pos} is outside the"
+                             f" limits of the maze.")
+
         if not self.is_in_bounds(self.exit_pos[0], self.exit_pos[1]):
-            raise ValueError(f"La coordenada 'exit_pos' "
-                             f"{self.exit_pos} está fuera de los límites.")
+            raise ValueError(f"The entry coordinate 'exit_pos' "
+                             f"{self.exit_pos} is outside the"
+                             f" limits of the maze.")
 
         with open(filename, "w", encoding="utf-8") as f:
             f.write(self.get_maze_str())
@@ -225,11 +219,14 @@ class interfaz(MazeGenerator):
                 print(f"[ERROR] An error ocurred: {error}")
                 return
 
-        print(f"[+] Laberinto guardado desde clase heredada en: {filename}")
+        print(f"[+] Maze has been saved into: {filename}")
 
-def draw_dfs_again(generador: MazeGenerator, maze_color: str,
-    blocked: set[tuple[int, int]]) -> None:
-    for event, data in generador.shortest_path_steps():
+
+def draw_dfs_again(generator: interfaz, maze_color: str,
+                   blocked: set[tuple[int, int]]) -> None:
+    """A complementaary function that helps
+    draw the mazes solution into the terminal"""
+    for event, data in generator.shortest_path_steps():
         os.system(
             "clear"
             if os.name == "posix"
@@ -242,7 +239,7 @@ def draw_dfs_again(generador: MazeGenerator, maze_color: str,
                     "invalid BFS search event"
                 )
 
-            generador.draw_solid(
+            generator.draw_solid(
                 maze_color=maze_color,
                 blocked=blocked,
                 visited=data,
@@ -260,14 +257,16 @@ def draw_dfs_again(generador: MazeGenerator, maze_color: str,
                     "invalid BFS solution event"
                 )
 
-            generador.draw_solid(
+            generator.draw_solid(
                 maze_color=maze_color,
                 blocked=blocked,
                 path=data,
             )
 
-def flush_input():
-    """Limpia el buffer de la terminal para ignorar lo escrito durante las animaciones."""
+
+def flush_input() -> None:
+    """Makes the program not take user
+    input during animations"""
     if sys.platform == "win32":
         import msvcrt
         while msvcrt.kbhit():
@@ -276,15 +275,18 @@ def flush_input():
         from termios import tcflush, TCIFLUSH
         tcflush(sys.stdin, TCIFLUSH)
 
+
 def Opciones(
-    generador: interfaz,
+    generator: interfaz,
     obstaculos: set[tuple[int, int]],
     file_name: str,
     perfect: bool,
 ) -> None:
+    """Displays options menu into the termial
+    and lets user pick an option"""
     COLORS: list[str] = [
         colors.WHITE, colors.RED, colors.GREEN,
-        colors.YELLOW, colors.BLUE, colors.MAGENTA,
+        colors.BLUE, colors.MAGENTA,
         colors.CYAN, colors.BROWN, colors.BLACK
     ]
 
@@ -300,7 +302,7 @@ def Opciones(
         print(f"4) {'Hide' if path_show else 'Show'} Path")
         print(
             f"5) "
-            f"{'Disable' if generador.animation else 'Enable'} "
+            f"{'Disable' if generator.animation else 'Enable'} "
             f"Animation"
         )
         print("----------")
@@ -320,7 +322,7 @@ def Opciones(
             continue
 
         if not 0 <= choice <= 5:
-            generador.draw_solid(
+            generator.draw_solid(
                 maze_color=maze_color,
                 blocked=obstaculos,
             )
@@ -336,18 +338,18 @@ def Opciones(
             break
 
         elif choice == 1:
-            for _ in generador._generate_dfs(
+            for _ in generator._generate_dfs(
                 blocked=obstaculos,
                 seed=None,
             ):
-                if generador.animation == True:
+                if generator.animation is True:
                     os.system(
                         'clear'
                         if os.name == 'posix'
                         else 'cls'
                     )
 
-                    generador.draw_solid(
+                    generator.draw_solid(
                         maze_color=maze_color,
                         blocked=obstaculos,
                     )
@@ -358,9 +360,9 @@ def Opciones(
                     pass
 
             if not perfect:
-                generador.braid(
+                generator.braid(
                     blocked=obstaculos,
-                    seed=generador.seed_utilizada,
+                    seed=generator.seed_utilizada,
                     max_dead_ends=0,
                     min_loops=2,
                 )
@@ -371,15 +373,15 @@ def Opciones(
                 else 'cls'
             )
 
-            if path_show == True:
+            if path_show is True:
                 draw_dfs_again(
-                    generador,
+                    generator,
                     maze_color,
                     obstaculos,
                 )
 
-            elif path_show == False:
-                generador.draw_solid(
+            elif path_show is False:
+                generator.draw_solid(
                     maze_color=maze_color,
                     blocked=obstaculos,
                 )
@@ -391,26 +393,26 @@ def Opciones(
                 else 'cls'
             )
 
-            color_index: int = (
+            color_index = (
                 color_index + 1
             ) % len(COLORS)
 
-            maze_color: str = COLORS[
+            maze_color = COLORS[
                 color_index
             ]
 
-            for _ in generador._generate_dfs(
+            for _ in generator._generate_dfs(
                 blocked=obstaculos,
-                seed=generador.seed_utilizada,
+                seed=generator.seed_utilizada,
             ):
-                if generador.animation == True:
+                if generator.animation is True:
                     os.system(
                         'clear'
                         if os.name == 'posix'
                         else 'cls'
                     )
 
-                    generador.draw_solid(
+                    generator.draw_solid(
                         maze_color=maze_color,
                         blocked=obstaculos,
                     )
@@ -421,9 +423,9 @@ def Opciones(
                     pass
 
             if not perfect:
-                generador.braid(
+                generator.braid(
                     blocked=obstaculos,
-                    seed=generador.seed_utilizada,
+                    seed=generator.seed_utilizada,
                     max_dead_ends=0,
                     min_loops=2,
                 )
@@ -434,42 +436,42 @@ def Opciones(
                 else 'cls'
             )
 
-            if path_show == True:
+            if path_show is True:
                 draw_dfs_again(
-                    generador,
+                    generator,
                     maze_color,
                     obstaculos,
                 )
 
-            elif path_show == False:
-                generador.draw_solid(
+            elif path_show is False:
+                generator.draw_solid(
                     maze_color=maze_color,
                     blocked=obstaculos,
                 )
 
         elif choice == 3:
-            generador.save_maze(
+            generator.save_maze(
                 file_name
             )
 
         elif choice == 4:
             path_show = not path_show
 
-            if path_show == True:
+            if path_show is True:
                 draw_dfs_again(
-                    generador,
+                    generator,
                     maze_color,
                     obstaculos,
                 )
 
-            elif path_show == False:
+            elif path_show is False:
                 os.system(
                     'clear'
                     if os.name == 'posix'
                     else 'cls'
                 )
 
-                generador.draw_solid(
+                generator.draw_solid(
                     maze_color=maze_color,
                     blocked=obstaculos,
                 )
@@ -477,23 +479,23 @@ def Opciones(
         elif choice == 5:
             print(
                 f"\nAnimation "
-                f"{'Disabled' if generador.animation else 'Enabled'}!"
+                f"{'Disabled' if generator.animation else 'Enabled'}!"
             )
 
-            generador.change_animation()
+            generator.change_animation()
 
-            for _ in generador._generate_dfs(
+            for _ in generator._generate_dfs(
                 blocked=obstaculos,
-                seed=generador.seed_utilizada,
+                seed=generator.seed_utilizada,
             ):
-                if generador.animation == True:
+                if generator.animation is True:
                     os.system(
                         'clear'
                         if os.name == 'posix'
                         else 'cls'
                     )
 
-                    generador.draw_solid(
+                    generator.draw_solid(
                         maze_color=maze_color,
                         blocked=obstaculos,
                     )
@@ -504,9 +506,9 @@ def Opciones(
                     pass
 
             if not perfect:
-                generador.braid(
+                generator.braid(
                     blocked=obstaculos,
-                    seed=generador.seed_utilizada,
+                    seed=generator.seed_utilizada,
                     max_dead_ends=0,
                     min_loops=2,
                 )
@@ -517,21 +519,21 @@ def Opciones(
                 else 'cls'
             )
 
-            if path_show == True:
+            if path_show is True:
                 draw_dfs_again(
-                    generador,
+                    generator,
                     maze_color,
                     obstaculos,
                 )
 
-            elif path_show == False:
+            elif path_show is False:
                 os.system(
                     'clear'
                     if os.name == 'posix'
                     else 'cls'
                 )
 
-                generador.draw_solid(
+                generator.draw_solid(
                     maze_color=maze_color,
                     blocked=obstaculos,
                 )

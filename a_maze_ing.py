@@ -14,36 +14,36 @@ def main() -> None:
     entry_pos: tuple[int, int] = parser.ENTRY
     exit_pos: tuple[int, int] = parser.EXIT
 
-    generador = interfaz(
+    generator = interfaz(
         width=width,
         height=height,
         entry_pos=entry_pos,
         exit_pos=exit_pos,
     )
 
-    blocked = generador._get_42_pattern()
+    blocked = generator._get_42_pattern()
 
-    for _ in generador._generate_dfs(
+    for _ in generator._generate_dfs(
         blocked=blocked,
         seed=parser.SEED,
     ):
         pass
 
     if parser.PERFECT is False:
-        generador.braid(
+        generator.braid(
             blocked=blocked,
-            seed=generador.seed_utilizada,
+            seed=parser.SEED,
             max_dead_ends=0,
             min_loops=2,
         )
 
-    generador.draw_solid(
+    generator.draw_solid(
         maze_color=colors.CYAN,
         blocked=blocked,
     )
 
     Opciones(
-        generador,
+        generator,
         blocked,
         parser.OUTPUT_FILE,
         bool(parser.PERFECT),

@@ -67,6 +67,7 @@ class MazeGenerator:
                 dict[str, bool]
             ]
         ] = self._create_grid()
+        self.seed_utilizada: int = 42
 
     @staticmethod
     def _validate_coordinate(
@@ -643,6 +644,7 @@ class MazeGenerator:
         return find_shortest_path_steps(
             self
         )
+
     def braid(
         self,
         blocked: set[tuple[int, int]],
@@ -657,4 +659,4 @@ class MazeGenerator:
             seed,
             max_dead_ends,
             min_loops,
-    )
+        )
