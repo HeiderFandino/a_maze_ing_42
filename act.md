@@ -1,3 +1,29 @@
+## 18/10/2026 — Segundo algoritmo de generación
+
+### H07/H08: modo no perfecto y bonus sin dead-ends
+
+Se consolidó el modo `PERFECT=False` mediante `braid()`.
+
+Estado actual:
+
+- Mantiene conectividad total del laberinto.
+- Conserva el patrón `42` como celdas completamente cerradas.
+- Mantiene coherencia entre paredes compartidas.
+- Garantiza múltiples rutas independientes.
+- Se configuró `max_dead_ends=0`.
+- Las esquinas y el centro permanecen accesibles.
+- El resultado ha sido validado con `maze_analyzer.py`.
+
+Ejemplo de resultado validado:
+
+```text
+Independent loops: 42
+Dead-ends        : 0 real + 3 enclosed by the '42' (tolerated)
+Corners + centre : all reachable
+Wall coherence   : OK
+
+Verdict: Pac-Man-USABLE
+
 ## 12/10/2026 — actualización H05 y soporte visual del camino mínimo
 
 ### H05: camino más corto

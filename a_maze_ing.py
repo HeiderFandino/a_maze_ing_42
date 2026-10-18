@@ -23,16 +23,24 @@ def main() -> None:
 
     blocked = generator._get_42_pattern()
 
-    for _ in generator._generate_dfs(
-        blocked=blocked,
-        seed=parser.SEED,
-    ):
-        pass
+    if parser.ALGORITHM == "DFS":
+        for _ in generator._generate_dfs(
+            blocked=blocked,
+            seed=parser.SEED,
+        ):
+            pass
+
+    elif parser.ALGORITHM == "PRIM":
+        for _ in generator._generate_prim(
+            blocked=blocked,
+            seed=parser.SEED,
+        ):
+            pass
 
     if parser.PERFECT is False:
         generator.braid(
             blocked=blocked,
-            seed=parser.SEED,
+            seed=generator.seed_utilizada,
             max_dead_ends=0,
             min_loops=2,
         )
@@ -47,6 +55,7 @@ def main() -> None:
         blocked,
         parser.OUTPUT_FILE,
         bool(parser.PERFECT),
+        parser.ALGORITHM,
     )
 
 

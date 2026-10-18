@@ -1,6 +1,9 @@
 from collections.abc import Iterator
 from .braiding import braid_maze
-from .generation import generate_dfs
+from .generation import (
+    generate_dfs,
+    generate_prim,
+)
 from .pathfinding import (
     path_to_directions as find_path_directions,
     reconstruct_path as build_path,
@@ -468,6 +471,17 @@ class MazeGenerator:
             blocked,
             seed,
         )
+    def _generate_prim(
+        self,
+        blocked: set[tuple[int, int]],
+        seed: int | None = None,
+    ):
+        """Generate a perfect maze using randomized Prim."""
+        return generate_prim(
+            self,
+            blocked,
+            seed,
+        )
 
     def _get_open_neighbors(
         self,
@@ -649,7 +663,7 @@ class MazeGenerator:
         self,
         blocked: set[tuple[int, int]],
         seed: int | None = None,
-        max_dead_ends: int = 2,
+        max_dead_ends: int = 0,
         min_loops: int = 2,
     ) -> int:
         """Transform a perfect maze into a braided maze."""

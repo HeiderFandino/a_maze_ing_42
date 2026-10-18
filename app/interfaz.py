@@ -281,6 +281,7 @@ def Opciones(
     obstaculos: set[tuple[int, int]],
     file_name: str,
     perfect: bool,
+    algorithm: str,
 ) -> None:
     """Displays options menu into the termial
     and lets user pick an option"""
@@ -338,10 +339,24 @@ def Opciones(
             break
 
         elif choice == 1:
-            for _ in generator._generate_dfs(
-                blocked=obstaculos,
-                seed=None,
-            ):
+            if algorithm == "DFS":
+                maze_generation = generator._generate_dfs(
+                    blocked=obstaculos,
+                    seed=None,
+                )
+
+            elif algorithm == "PRIM":
+                maze_generation = generator._generate_prim(
+                    blocked=obstaculos,
+                    seed=None,
+                )
+
+            else:
+                raise ValueError(
+                    "Algorithm must be DFS or PRIM"
+                )
+
+            for _ in maze_generation:
                 if generator.animation is True:
                     os.system(
                         'clear'
@@ -401,10 +416,24 @@ def Opciones(
                 color_index
             ]
 
-            for _ in generator._generate_dfs(
-                blocked=obstaculos,
-                seed=generator.seed_utilizada,
-            ):
+            if algorithm == "DFS":
+                maze_generation = generator._generate_dfs(
+                    blocked=obstaculos,
+                    seed=generator.seed_utilizada,
+                )
+
+            elif algorithm == "PRIM":
+                maze_generation = generator._generate_prim(
+                    blocked=obstaculos,
+                    seed=generator.seed_utilizada,
+                )
+
+            else:
+                raise ValueError(
+                    "Algorithm must be DFS or PRIM"
+                )
+
+            for _ in maze_generation:
                 if generator.animation is True:
                     os.system(
                         'clear'
@@ -484,10 +513,24 @@ def Opciones(
 
             generator.change_animation()
 
-            for _ in generator._generate_dfs(
-                blocked=obstaculos,
-                seed=generator.seed_utilizada,
-            ):
+            if algorithm == "DFS":
+                maze_generation = generator._generate_dfs(
+                    blocked=obstaculos,
+                    seed=generator.seed_utilizada,
+                )
+
+            elif algorithm == "PRIM":
+                maze_generation = generator._generate_prim(
+                    blocked=obstaculos,
+                    seed=generator.seed_utilizada,
+                )
+
+            else:
+                raise ValueError(
+                    "Algorithm must be DFS or PRIM"
+                )
+
+            for _ in maze_generation:
                 if generator.animation is True:
                     os.system(
                         'clear'

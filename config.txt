@@ -1,7 +1,8 @@
-WIDTH           = 20
-HEIGHT          = 20
+WIDTH           = 7
+HEIGHT          = 8
 ENTRY           = 0,0
-EXIT            = 19,19
+EXIT            = 6,6
 OUTPUT_FILE     = maze.txt
-PERFECT         = False
-#SEED            = 42
+PERFECT         = FALSE
+SEED            = 42
+ALGORITHM       = PRIM
