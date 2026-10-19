@@ -13,6 +13,7 @@ from pydantic import (
     ValidationError,
     NewPath,
 )
+
 from typing_extensions import Annotated
 
 
@@ -63,6 +64,7 @@ TxtFilePath = Annotated[
 
 class MazeConfig(BaseModel):
     """Class to stare and validate every variable"""
+
     model_config = ConfigDict(extra='allow')
 
     width: int = Field(..., ge=1, le=45)
@@ -79,7 +81,7 @@ class MazeConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_maze_rules(self) -> "MazeConfig":
-        """ Validating every variable from the config file"""
+        """Validating every variable from the config file"""
         validate_txt_extension(
             self.output_file
         )
@@ -272,7 +274,10 @@ class Parsing:
 
         except ParsingError as e:
             print("Error in configuration file format:")
-            print(f"  [!] Make sure to only use the '=' sign to assign values.")
+            print(
+                "  [!] Make sure to only use the "
+                "'=' sign to assign values."
+            )
             print(f"  Details: {e}")
             sys.exit(1)
 
