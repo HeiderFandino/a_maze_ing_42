@@ -1,6 +1,6 @@
 import sys
 from typing import Optional, Any, Union, cast
-from configparser import ConfigParser
+from configparser import ConfigParser, ParsingError
 from pathlib import Path
 from pydantic import (
     BaseModel,
@@ -19,16 +19,21 @@ from typing_extensions import Annotated
 def parse_coordinate_string(
     v: Union[str, tuple[int, int]]
 ) -> tuple[int, int]:
-    """Functionn for converting a chain 'x,y'
+    """Function for converting a chain 'x,y'
     into a tuple (x, y) before validating"""
     if isinstance(v, str):
         try:
             parts = v.strip().split(",")
+            if len(parts) != 2:
+                raise ValueError(
+                    "Must have the exact format "
+                    "'int,int' (ej: 1,2)"
+                )
             return int(parts[0]), int(parts[1])
         except (ValueError, IndexError):
             raise ValueError(
-                "Debe tener el formato "
-                "'entero,entero' (ej: 1,2)"
+                "Must have the exact format "
+                "'int,int' (eg: 1,2)"
             )
     return v
 
@@ -154,7 +159,7 @@ class Parsing:
         get the variabls and manage errors"""
         try:
             # Leer el archivo con un bloque 'with' seguro
-            config = ConfigParser()
+            config = ConfigParser(delimiters=('=',))
 
             with open(
                 self.config_file,
@@ -263,6 +268,12 @@ class Parsing:
                         f"{error['msg']}"
                     )
 
+            sys.exit(1)
+
+        except ParsingError as e:
+            print("Error in configuration file format:")
+            print(f"  [!] Make sure to only use the '=' sign to assign values.")
+            print(f"  Details: {e}")
             sys.exit(1)
 
         except Exception as e:
