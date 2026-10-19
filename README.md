@@ -474,9 +474,6 @@ Main responsibilities included:
 - non-perfect/braided generation;
 - zero-dead-end work;
 - alternative generation algorithm;
-- generation events used by animation;
-- analyzer-driven maze validation;
-- type checking, linting, and final technical review.
 
 **mmarches — configuration, terminal interface, and application integration**
 
@@ -486,10 +483,10 @@ Main responsibilities included:
 - default configuration and option selection;
 - terminal rendering;
 - hexadecimal file export;
-- application/CLI integration;
 - interactive controls;
-- repository workflow;
 - end-to-end application and file testing.
+- generation events used by animation.
+- type checking, linting, and final technical review.
 
 Both members reviewed each other's work and jointly agreed on the contract between the reusable engine and the application layer.
 
