@@ -214,7 +214,7 @@ class interfaz(MazeGenerator):
             f.write(f"\n{self.entry_pos[0]},{self.entry_pos[1]}")
             f.write(f"\n{self.exit_pos[0]},{self.exit_pos[1]}\n")
             try:
-                f.write(f"{self.path_to_directions(self.shortest_path())}")
+                f.write(f"{self.path_to_directions(self.shortest_path())}\n")
             except Exception as error:
                 print(f"[ERROR] An error ocurred: {error}")
                 return

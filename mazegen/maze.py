@@ -1,6 +1,7 @@
 from collections.abc import Iterator
 from .braiding import braid_maze
 from .generation import (
+    GenerationEvent,
     generate_dfs,
     generate_prim,
 )
@@ -459,23 +460,19 @@ class MazeGenerator:
         self,
         blocked: set[tuple[int, int]],
         seed: int | None = None,
-    ) -> Iterator[
-        tuple[
-            tuple[int, int],
-            tuple[int, int],
-        ]
-    ]:
+    ) -> Iterator[GenerationEvent]:
         """Generate a perfect maze using iterative DFS."""
         return generate_dfs(
             self,
             blocked,
             seed,
         )
+
     def _generate_prim(
         self,
         blocked: set[tuple[int, int]],
         seed: int | None = None,
-    ):
+    ) -> Iterator[GenerationEvent]:
         """Generate a perfect maze using randomized Prim."""
         return generate_prim(
             self,

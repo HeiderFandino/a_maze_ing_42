@@ -1,3 +1,5 @@
+import sys
+
 from app import colors
 from app.interfaz import Opciones, interfaz
 from config import Parsing
@@ -5,7 +7,12 @@ from config import Parsing
 
 def main() -> None:
     """Create, generate and display the maze application."""
-    parser: Parsing = Parsing("config.txt")
+    if len(sys.argv) != 2:
+        raise ValueError(
+            "Usage: python3 a_maze_ing.py config.txt"
+        )
+
+    parser: Parsing = Parsing(sys.argv[1])
     parser.set_config()
 
     width: int = parser.WIDTH
