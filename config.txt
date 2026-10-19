@@ -1,8 +1,8 @@
-WIDTH           = 7
-HEIGHT          = 9
+WIDTH           = 15
+HEIGHT          = 15
 ENTRY           = 0,0
-EXIT            = 6,6
+EXIT            = 14,14
 OUTPUT_FILE     = maze.txt
 PERFECT         = TRUE
 SEED            = 42
-ALGORITHM       = PRIM
+ALGORITHM       = DFS
